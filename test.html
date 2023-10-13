@@ -23,20 +23,31 @@
                         <input type="value" id="canvasHeightSize" value="500" oninput="setCanvasSize()">
                     </div>
                 </div>
+                <div class="systemButton" style="display: flex;">
+                    <input type="button" value="CLEAR" onclick="clearButton()">
+                </div>
+            </div>
+            <div class="setting">
+                <p>DrawSize</p>
+                <div style="display: flex;">
+                    <input type="range" id="drawSizeSlider" min="1" max="30" oninput="setDrawSizeSlider()">
+                    <p id="drawSizeValue"></p>
+                </div>
+                <div class="drawSizeTemplate" style="display: flex;">
+                    <input type="button" value="1" onclick="setDrawSize(1)">
+                    <input type="button" value="5" onclick="setDrawSize(5)">
+                    <input type="button" value="10" onclick="setDrawSize(10)">
+                    <input type="button" value="20" onclick="setDrawSize(20)">
+                </div>
             </div>
             <div class="tool">
-                <div style="text-align: center;">
-                    <input type="button" value="🖊">
-                    <p id="penSizeValue"></p>
-                </div>
-                <div>
-                    <canvas width="180" height="40" id="pen_canvas"></canvas>
-                    <input type="range" id="penSizeSlider" min="0" max="20" oninput="setPenSizeSlider()">
-                </div>
+                <input type="button" id="pen" value="P" onclick="setSelectMode('PEN')">
+                <canvas width="180" height="40" id="pen_canvas"></canvas>
             </div>
-            <input type="button" value="細" onclick="setPenSize(1)">
-            <input type="button" value="中" onclick="setPenSize(5)">
-            <input type="button" value="太" onclick="setPenSize(10)">
+            <div class="tool">
+                <input type="button" id="eraser" value="E" onclick="setSelectMode('ERASER')">
+                <canvas width="180" height="40" id="eraser_canvas"></canvas>
+            </div>
             <input type="button" value="色" id="irohyouji" style="background-color: black;">
         </div>
         <div class="main">
@@ -69,9 +80,6 @@
                 <input type="button" value="茶" style="background-color: sienna;" onclick="setColor('sienna')">
                 <input type="button" value="橙" style="background-color: orange;" onclick="setColor('orange')">
                 <input id="irosentaku" type="color" value="#000000" onchange="setAnyColor()">
-            </div>
-            <div>
-                <input type="button" value="clear" onclick="clearCanvas()">
             </div>
         </div>
     </div>

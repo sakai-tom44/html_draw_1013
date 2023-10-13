@@ -3,6 +3,21 @@ function drawPoint(ctx, x, y, color = "black"){
     ctx.fillRect(x, y, 1, 1)
 }
 
+function drawPenDown(ctx){
+    ctx.beginPath();
+}
+
+function drawPenLine(ctx, x, y, color = "black", width = 1) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.lineTo(x, y);
+    ctx.stroke();
+}
+
+function drawPenUp(ctx){
+    ctx.closePath();
+}
+
 function drawLine(ctx, x1, y1, x2, y2, color = "black", width = 1) {
     ctx.strokeStyle = color;
     ctx.lineWidth = width;
@@ -56,4 +71,13 @@ function drawPolygon(ctx, points, color = "black", lineWidth = 1){
     }
     ctx.closePath();
     ctx.stroke();
+}
+
+function drawMeshPattern(ctx, w, h){
+    fillRectangle(ctx, 0, 0, w, h, "white");
+    for (let i = 0; i * 16 < w; i++) {
+        for (let j = 0; j * 8 < h; j++) {
+            fillRectangle(ctx, i * 16 + 8 * (1 - j % 2), j * 8, 8, 8, "lightgray");
+        }
+    }
 }
