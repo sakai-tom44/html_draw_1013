@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <title>描画</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="./joronD.js"></script>
+    <script src="./oekaki.js"></script>
+</head>
+
+<body>
+    <div class="group">
+        <div class="left">
+            <div class="setting">
+                <p>Canvas</p>
+                <div style="display: flex;">
+                    <div style="width: 50%; display: flex;">
+                        <p>w:</p>
+                        <input type="value" id="canvasWidthSize" value="500" oninput="setCanvasSize()">
+                    </div>
+                    <div style="width: 50%; display: flex;">
+                        <p>h:</p>
+                        <input type="value" id="canvasHeightSize" value="500" oninput="setCanvasSize()">
+                    </div>
+                </div>
+            </div>
+            <div class="tool">
+                <div style="text-align: center;">
+                    <input type="button" value="🖊">
+                    <p id="penSizeValue"></p>
+                </div>
+                <div>
+                    <canvas width="180" height="40" id="pen_canvas"></canvas>
+                    <input type="range" id="penSizeSlider" min="0" max="20" oninput="setPenSizeSlider()">
+                </div>
+            </div>
+            <input type="button" value="細" onclick="setPenSize(1)">
+            <input type="button" value="中" onclick="setPenSize(5)">
+            <input type="button" value="太" onclick="setPenSize(10)">
+            <input type="button" value="色" id="irohyouji" style="background-color: black;">
+        </div>
+        <div class="main">
+            <div class="header"></div>
+            <canvas width="500" height="500" id="main_canvas"></canvas>
+            <div class="footer"></div>
+        </div>
+
+        <div class="right">
+            <div class="pallet">
+                <canvas width="200" height="200" id="pallet_canvas"></canvas>
+                <canvas width="200" height="20" id="hsl_canvas"></canvas>
+                <div style="display: flex;">
+                    <p id="hslValue_H" class="hslValue"></p>
+                    <p id="hslValue_S" class="hslValue"></p>
+                    <p id="hslValue_L" class="hslValue"></p>
+                </div>
+            </div>
+            <div>
+                <input type="button" value="赤" style="background-color: red;" onclick="setColor('red')">
+                <input type="button" value="緑" style="background-color: green;" onclick="setColor('green')">
+                <input type="button" value="黄" style="background-color: yellow;" onclick="setColor('yellow')">
+                <input type="button" value="青" style="background-color: blue;" onclick="setColor('blue')">
+                <input type="button" value="紫" style="background-color: purple;" onclick="setColor('purple')">
+            </div>
+            <div>
+                <input type="button" value="灰" style="background-color: gray;" onclick="setColor('gray')">
+                <input type="button" value="白" style="background-color: white;" onclick="setColor('white')">
+                <input type="button" value="黒" style="background-color: black;" onclick="setColor('black')">
+                <input type="button" value="茶" style="background-color: sienna;" onclick="setColor('sienna')">
+                <input type="button" value="橙" style="background-color: orange;" onclick="setColor('orange')">
+                <input id="irosentaku" type="color" value="#000000" onchange="setAnyColor()">
+            </div>
+            <div>
+                <input type="button" value="clear" onclick="clearCanvas()">
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
