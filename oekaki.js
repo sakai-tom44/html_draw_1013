@@ -1,5 +1,5 @@
-let gCanvas;
-let gCtx;
+let gCanvas = [];
+let gCtx = [];
 let pCanvas;
 let pCtx;
 let hslCanvas;
@@ -15,6 +15,8 @@ let fillCtx;
 let mousePoint = null;
 let isDraw = false;
 let selectMode = "PEN";
+let selectLayer = 0;
+let maxLayer = 0;
 
 let nowDrawSize = 1;
 let nowColor = [0, 0, 0];
@@ -22,6 +24,41 @@ let nowHsl_H = 0;
 let nowHsl_S = 0;
 let nowHsl_L = 0;
 let fillThreshold = 30;
+
+window.addEventListener('load', () => {
+    onload();
+}, false);
+
+function onload() {
+    gCanvas[0] = document.getElementById('canvas_0');
+    gCtx[0] = gCanvas[0].getContext('2d');
+    pCanvas = document.getElementById('pallet_canvas');
+    pCtx = pCanvas.getContext('2d');
+    hslCanvas = document.getElementById('hsl_canvas');
+    hslCtx = hslCanvas.getContext('2d');
+    penCanvas = document.getElementById('pen_canvas');
+    penCtx = penCanvas.getContext('2d');
+    brushCanvas = document.getElementById('brush_canvas');
+    brushCtx = brushCanvas.getContext('2d');
+    fillCanvas = document.getElementById('fill_canvas');
+    fillCtx = fillCanvas.getContext('2d');
+    eraserCanvas = document.getElementById('eraser_canvas');
+    eraserCtx = eraserCanvas.getContext('2d');
+    setCanvasSize();
+    setSelectMode();
+    refreshPallet()
+    clearCanvas();
+    refreshHslCanvas();
+    setHslColor();
+    setDrawSizeSlider();
+    deleteColorMemory();
+    updataLayerButton();
+    gCanvas[0].addEventListener('mousedown', onMouseDown, false);
+    gCanvas[0].addEventListener('mousemove', onMouseMove, false);
+    gCanvas[0].addEventListener('mouseup', onMouseUp, false);
+    pCanvas.addEventListener('click', clickPallet, false);
+    hslCanvas.addEventListener('click', clickHsl, false);
+}
 
 function setSelectMode(mode = "PEN") {
     selectMode = mode;
@@ -75,7 +112,11 @@ function clickPallet(e) {
 function onMouseDown(e) {
     if (!isDraw) {
         isDraw = true;
-        drawPenDown(gCtx);
+        if(selectMode === "PEN")drawPenDown(gCtx[selectLayer]);
+        if(selectMode === "ERASER"){
+            if(selectLayer === 0)drawPenDown(gCtx[selectLayer]);
+            if(selectLayer > 0)eraserDown(gCtx[selectLayer]);
+        }
     }
     if (selectMode === "EYEDROPPER") eyedropperTool(e.offsetX, e.offsetY);
     if (selectMode === "FILL") fillTool(e.offsetX, e.offsetY);
@@ -84,19 +125,29 @@ function onMouseDown(e) {
 
 function onMouseMove(e) {
     if (isDraw) {
-        if (selectMode === "PEN") drawPenLine(gCtx, e.offsetX, e.offsetY, toRGB(nowColor), nowDrawSize);
-        if (selectMode === "BRUSH") drawBrushLine(gCtx, mousePoint[0], mousePoint[1], e.offsetX, e.offsetY, toRGB(nowColor), nowDrawSize);
-        if (selectMode === "ERASER") drawPenLine(gCtx, e.offsetX, e.offsetY, "white", nowDrawSize);
+        if (selectMode === "PEN") drawPenLine(gCtx[selectLayer], e.offsetX, e.offsetY, toRGB(nowColor), nowDrawSize);
+        if (selectMode === "BRUSH") drawBrushLine(gCtx[selectLayer], mousePoint[0], mousePoint[1], e.offsetX, e.offsetY, toRGB(nowColor), nowDrawSize);
+        if (selectMode === "ERASER") {
+            if(selectLayer === 0)drawPenLine(gCtx[selectLayer], e.offsetX, e.offsetY, "white", nowDrawSize);
+            if(selectLayer > 0)eraserLine(gCtx[selectLayer], e.offsetX, e.offsetY, nowDrawSize);
+        }
     }
     mousePoint = [e.offsetX, e.offsetY];
 }
 
 function onMouseUp(e) {
     if (isDraw) {
-        if (selectMode === "PEN") drawPenLine(gCtx, e.offsetX, e.offsetY, toRGB(nowColor), nowDrawSize);
-        if (selectMode === "ERASER") drawPenLine(gCtx, e.offsetX, e.offsetY, "white", nowDrawSize);
+        if (selectMode === "PEN") drawPenLine(gCtx[selectLayer], e.offsetX, e.offsetY, toRGB(nowColor), nowDrawSize);
+        if (selectMode === "ERASER") {
+            if(selectLayer === 0)drawPenLine(gCtx[selectLayer], e.offsetX, e.offsetY, "white", nowDrawSize);
+            if(selectLayer > 0)eraserLine(gCtx[selectLayer], e.offsetX, e.offsetY, nowDrawSize);
+        }
         isDraw = false;
-        drawPenUp(gCtx)
+        if(selectMode === "PEN")drawPenUp(gCtx[selectLayer])
+        if(selectMode === "ERASER"){
+            if(selectLayer === 0)drawPenUp(gCtx[selectLayer]);
+            if(selectLayer > 0)eraserUp(gCtx[selectLayer]);
+        }
     }
     mousePoint = null;
 }
@@ -106,16 +157,16 @@ function toRGB(c) {
 }
 
 function fillTool(x, y) {
-    let targetColor = gCtx.getImageData(x, y, 1, 1).data;
+    let targetColor = gCtx[selectLayer].getImageData(x, y, 1, 1).data;
     let buffer = [];
     buffer.push([x, y]);
     while (buffer.length > 0) {
         let pos = buffer.pop();
-        if (pos[0] < 0 || pos[0] >= gCanvas.width || pos[1] < 0 || pos[1] >= gCanvas.height) continue;
-        let posColor = gCtx.getImageData(pos[0], pos[1], 1, 1).data;
+        if (pos[0] < 0 || pos[0] >= gCanvas[selectLayer].width || pos[1] < 0 || pos[1] >= gCanvas[selectLayer].height) continue;
+        let posColor = gCtx[selectLayer].getImageData(pos[0], pos[1], 1, 1).data;
         if (colorMatch(nowColor, posColor)) continue;
         if (!colorMatch(targetColor, posColor)) continue;
-        drawPoint(gCtx, pos[0], pos[1], toRGB(nowColor));
+        drawPoint(gCtx[selectLayer], pos[0], pos[1], toRGB(nowColor));
         buffer.push([pos[0] - 1, pos[1]]);
         buffer.push([pos[0], pos[1] - 1]);
         buffer.push([pos[0], pos[1] + 1]);
@@ -124,22 +175,27 @@ function fillTool(x, y) {
 }
 
 function colorMatch(c1, c2) {
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 4; i++) {
         if (c1[i] <= c2[i] - fillThreshold || c1[i] >= c2[i] + fillThreshold) return false;
     }
     return true;
 }
 
 function eyedropperTool(x, y) {
-    let hsl = getCanvasColor(gCtx, x, y);
+    let hsl = getCanvasColor(gCtx[selectLayer], x, y);
     setColor(hsl[0], hsl[1], hsl[2]);
 }
 
 function getCanvasColor(ctx, x, y) {
-    let rgb = ctx.getImageData(x, y, 1, 1)
-    let r = rgb.data[0] / 255;
-    let g = rgb.data[1] / 255;
-    let b = rgb.data[2] / 255;
+    let rgb = ctx.getImageData(x, y, 1, 1);
+    let hsl = rgbToHsl(rgb.data);
+    return hsl;
+}
+
+function rgbToHsl(rgb) {
+    let r = rgb[0] / 255;
+    let g = rgb[1] / 255;
+    let b = rgb[2] / 255;
     let max = Math.max(r, g, b);
     let min = Math.min(r, g, b);
     let diff = max - min;
@@ -164,44 +220,8 @@ function getCanvasColor(ctx, x, y) {
     return [h, s, l];
 }
 
-window.addEventListener('load', () => {
-    onload();
-}, false);
-
-function onload() {
-    gCanvas = document.getElementById('main_canvas');
-    gCtx = gCanvas.getContext('2d');
-    pCanvas = document.getElementById('pallet_canvas');
-    pCtx = pCanvas.getContext('2d');
-    hslCanvas = document.getElementById('hsl_canvas');
-    hslCtx = hslCanvas.getContext('2d');
-    penCanvas = document.getElementById('pen_canvas');
-    penCtx = penCanvas.getContext('2d');
-    brushCanvas = document.getElementById('brush_canvas');
-    brushCtx = brushCanvas.getContext('2d');
-    fillCanvas = document.getElementById('fill_canvas');
-    fillCtx = fillCanvas.getContext('2d');
-    eraserCanvas = document.getElementById('eraser_canvas');
-    eraserCtx = eraserCanvas.getContext('2d');
-    setCanvasSize();
-    setSelectMode();
-    refreshPallet()
-    clearCanvas();
-    refreshHslCanvas();
-    setHslColor();
-    setDrawSizeSlider();
-    deleteColorMemory();
-    gCanvas.addEventListener('mousedown', onMouseDown, false);
-    gCanvas.addEventListener('mousemove', onMouseMove, false);
-    gCanvas.addEventListener('mouseup', onMouseUp, false);
-    pCanvas.addEventListener('click', clickPallet, false);
-    hslCanvas.addEventListener('click', clickHsl, false);
-}
-
 function setCanvasSize() {
-    gCanvas.width = document.getElementById('canvasWidthSize').value;
-    gCanvas.height = document.getElementById('canvasHeightSize').value;
-    clearCanvas();
+    allClearCanvas();
 }
 
 function setDrawSize(w) {
@@ -217,21 +237,46 @@ function setDrawSizeSlider() {
     refreshEraserCanvas();
 }
 
-function setHslColor() {
-    nowColor = rgbToHSL(nowHsl_H, nowHsl_S, nowHsl_L);
+function setRGBSizeSlider() {
+    nowColor[0] = parseInt(document.getElementById("rgbSlider_R").value);
+    nowColor[1] = parseInt(document.getElementById("rgbSlider_G").value);
+    nowColor[2] = parseInt(document.getElementById("rgbSlider_B").value);
+
+    let hsl = rgbToHsl(nowColor);
+    nowHsl_H = Math.floor(hsl[0] * 10) / 10;
+    nowHsl_S = Math.floor(hsl[1] * 100) / 100;
+    nowHsl_L = Math.floor(hsl[2] * 100) / 100;
+
+    updataColor();
+}
+
+function updataColor() {
     document.getElementById("hslValue_H").innerHTML = "H:" + nowHsl_H;
     document.getElementById("hslValue_S").innerHTML = "S:" + nowHsl_S;
     document.getElementById("hslValue_L").innerHTML = "L:" + nowHsl_L;
     document.getElementById("rgbValue_R").innerHTML = "R:" + nowColor[0];
     document.getElementById("rgbValue_G").innerHTML = "G:" + nowColor[1];
     document.getElementById("rgbValue_B").innerHTML = "B:" + nowColor[2];
+    document.getElementById("colorSample").style.backgroundColor = toRGB(nowColor);
+    document.getElementById("rgbSlider_R").value = nowColor[0];
+    document.getElementById("rgbSlider_G").value = nowColor[1];
+    document.getElementById("rgbSlider_B").value = nowColor[2];
+
+    refreshPallet();
+    refreshHslCanvas();
 
     refreshPenCanvas();
     refreshBrushCanvas();
     refreshFillCanvas();
 }
 
-function rgbToHSL(h, s, l) {
+function setHslColor() {
+    nowColor = hslToRgb(nowHsl_H, nowHsl_S, nowHsl_L);
+
+    updataColor();
+}
+
+function hslToRgb(h, s, l) {
     if (((h || h === 0) && h <= 360) && ((s || s === 0) && s <= 100) && ((l || l === 0) && l <= 100)) {
         var r = 0,
             g = 0,
@@ -270,7 +315,6 @@ function rgbToHSL(h, s, l) {
             b = hueToRgb(p, q, h - 1 / 3);
         }
     }
-
     return [Math.floor(r * 255), Math.floor(g * 255), Math.floor(b * 255)];
 }
 
@@ -278,9 +322,6 @@ function setColor(h, s, l) {
     nowHsl_H = Math.floor(10 * h) / 10;
     nowHsl_S = Math.floor(100 * s) / 100;
     nowHsl_L = Math.floor(100 * l) / 100;
-
-    refreshPallet();
-    refreshHslCanvas();
     setHslColor();
 }
 
@@ -303,14 +344,89 @@ function deleteColorMemory() {
     document.querySelector('#memorySlot').innerHTML = str;
 }
 
+function addLayer() {
+    maxLayer += 1;
+    let btn = document.createElement("input");
+    btn.setAttribute("type", "button");
+    btn.setAttribute("id", "layerButton_" + maxLayer);
+    btn.setAttribute("value", "レイヤー" + maxLayer);
+    btn.setAttribute("onclick", "setSelectLayer(" + maxLayer + ")");
+    document.getElementById("layerList").prepend(btn);
+
+    let can = document.createElement("canvas");
+    can.setAttribute("width", document.getElementById('canvasWidthSize').value);
+    can.setAttribute("height", document.getElementById('canvasHeightSize').value);
+    can.setAttribute("class", "main_canvas");
+    can.setAttribute("id", "canvas_" + maxLayer);
+    document.getElementById("canvas_group").appendChild(can);
+
+    gCanvas.push(document.getElementById('canvas_' + maxLayer));
+    gCtx.push(gCanvas[maxLayer].getContext('2d'));
+
+    gCanvas[maxLayer].addEventListener('mousedown', onMouseDown, false);
+    gCanvas[maxLayer].addEventListener('mousemove', onMouseMove, false);
+    gCanvas[maxLayer].addEventListener('mouseup', onMouseUp, false);
+
+    updataLayerButton();
+}
+
+function deleteLayer() {
+    if (maxLayer > 0) {
+        document.getElementById("layerButton_" + maxLayer).remove();
+        document.getElementById("canvas_" + maxLayer).remove();
+        maxLayer -= 1;
+        gCanvas.pop();
+        gCtx.pop();
+    }
+    if (selectLayer >= maxLayer) selectLayer = maxLayer;
+
+    updataLayerButton();
+}
+
+function setSelectLayer(num) {
+    selectLayer = num;
+    updataLayerButton();
+}
+
+function updataLayerButton() {
+    for (let i = 0; i <= maxLayer; i++) {
+        if (i === selectLayer) {
+            document.getElementById("layerButton_" + i).style.backgroundColor = "gray";
+            document.getElementById("layerButton_" + i).style.color = "white";
+        } else {
+            document.getElementById("layerButton_" + i).style.backgroundColor = "lightgray";
+            document.getElementById("layerButton_" + i).style.color = "gray";
+        }
+    }
+}
+
 function clearButton() {
-    if (window.confirm('本当に初期化しますか？')) {
+    if (window.confirm('本当にこのレイヤーを初期化しますか？')) {
         clearCanvas();
     }
 }
 
 function clearCanvas() {
-    fillRectangle(gCtx, 0, 0, gCanvas.width, gCanvas.height, "white");
+    if(selectLayer === 0){
+        fillRectangle(gCtx[0], 0, 0, gCanvas[0].width, gCanvas[0].height, "white");
+    }else{
+        gCanvas[selectLayer].width = document.getElementById('canvasWidthSize').value;
+        gCanvas[selectLayer].height = document.getElementById('canvasHeightSize').value;
+    }
+}
+
+function allClearButton() {
+    if (window.confirm('本当にすべてのレイヤーを初期化しますか？')) {
+        allClearCanvas();
+    }
+}
+
+function allClearCanvas() {
+    for (let i = 0; i <= maxLayer; i++) {
+        gCanvas[i].width = document.getElementById('canvasWidthSize').value;
+        gCanvas[i].height = document.getElementById('canvasHeightSize').value;
+    }
+    fillRectangle(gCtx[0], 0, 0, gCanvas[0].width, gCanvas[0].height, "white");
 }
 
 function refreshPallet() {
@@ -366,7 +482,7 @@ function refreshEraserCanvas() {
     drawPenUp(eraserCtx);
 }
 
-function refreshFillCanvas(){
+function refreshFillCanvas() {
     drawMeshPattern(fillCtx, fillCanvas.width, fillCanvas.height);
-    fillRectangle(fillCtx, 0, 0, fillCanvas.width/2, fillCanvas.height, toRGB(nowColor));
+    fillRectangle(fillCtx, 0, 0, fillCanvas.width / 2, fillCanvas.height, toRGB(nowColor));
 }

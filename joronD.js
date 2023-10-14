@@ -24,12 +24,29 @@ function drawBrushLine(ctx, x1, y1, x2, y2, color = "black", width = 1) {
     s = Math.min(s, width)
     ctx.strokeStyle = color;
     ctx.lineWidth = s;
-    ctx.lineCap = "round";
+    ctx.lineCap = cap;
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
     ctx.closePath();
     ctx.stroke();
+}
+
+function eraserDown(ctx) {
+    ctx.beginPath();
+    ctx.globalCompositeOperation = 'destination-out';
+}
+
+function eraserLine(ctx, x, y, width = 1) {
+    ctx.lineWidth = width;
+    ctx.lineCap = 'round';
+    ctx.lineTo(x, y);
+    ctx.stroke();
+}
+
+function eraserUp(ctx){
+    ctx.closePath();
+    ctx.globalCompositeOperation = 'source-over';
 }
 
 function drawLine(ctx, x1, y1, x2, y2, color = "black", width = 1) {

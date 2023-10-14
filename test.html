@@ -26,7 +26,7 @@
                         </div>
                     </div>
                     <div class="systemButton" style="display: flex;">
-                        <input type="button" value="CLEAR" onclick="clearButton()">
+                        <input type="button" value="CLEAR" onclick="allClearButton()">
                     </div>
                 </div>
                 <div class="setting">
@@ -70,15 +70,11 @@
                     </div>
                     <canvas width="180" height="40" id="fill_canvas"></canvas>
                 </div>
-                <div class="tool">
-                    <div>
-                        <p>スポイト</p>
-                        <input type="button" id="eyedropper" value="S" onclick="setSelectMode('EYEDROPPER')">
-                    </div>
-                </div>
             </div>
-            <div class="main">
-                <canvas width="500" height="500" id="main_canvas"></canvas>
+            <div id="main" class="main">
+                <div class="canvas_group" id="canvas_group">
+                    <canvas width="500" height="500" class="main_canvas" id="canvas_0"></canvas>
+                </div>
             </div>
             <div class="right">
                 <div class="colorMemory box">
@@ -97,10 +93,35 @@
                         <p id="hslValue_S" class="colorValue"></p>
                         <p id="hslValue_L" class="colorValue"></p>
                     </div>
+                    <p id="colorSample"></p>
                     <div style="display: flex;">
                         <p id="rgbValue_R" class="colorValue"></p>
                         <p id="rgbValue_G" class="colorValue"></p>
                         <p id="rgbValue_B" class="colorValue"></p>
+                    </div>
+                    <div class="tool">
+                        <div>
+                            <p>スポイト</p>
+                            <input type="button" id="eyedropper" value="S" onclick="setSelectMode('EYEDROPPER')">
+                        </div>
+                        <div>
+                            <input type="range" class="rgbSlider" id="rgbSlider_R" min="0" max="255"
+                                oninput="setRGBSizeSlider()">
+                            <input type="range" class="rgbSlider" id="rgbSlider_G" min="0" max="255"
+                                oninput="setRGBSizeSlider()">
+                            <input type="range" class="rgbSlider" id="rgbSlider_B" min="0" max="255"
+                                oninput="setRGBSizeSlider()">
+                        </div>
+                    </div>
+                </div>
+                <div class="layerMenue box">
+                    <div class="layerUI">
+                        <input type="button" value="ADD" onclick="addLayer()">
+                        <input type="button" value="DEL" onclick="deleteLayer()">
+                        <input type="button" value="CLE" onclick="clearButton()">
+                    </div>
+                    <div id="layerList">
+                        <input type="button" id="layerButton_0" value="レイヤー0" onclick="setSelectLayer(0)">
                     </div>
                 </div>
             </div>
