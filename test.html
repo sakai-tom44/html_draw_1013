@@ -9,79 +9,103 @@
 </head>
 
 <body>
-    <div class="group">
-        <div class="left">
-            <div class="setting">
-                <p>Canvas</p>
-                <div style="display: flex;">
-                    <div style="width: 50%; display: flex;">
-                        <p>w:</p>
-                        <input type="value" id="canvasWidthSize" value="500" oninput="setCanvasSize()">
+    <div class="paintScene">
+        <div class="header"></div>
+        <div class="group">
+            <div class="left">
+                <div class="setting">
+                    <p>Canvas</p>
+                    <div style="display: flex;">
+                        <div style="width: 50%; display: flex;">
+                            <p>w:</p>
+                            <input type="value" id="canvasWidthSize" value="500" oninput="setCanvasSize()">
+                        </div>
+                        <div style="width: 50%; display: flex;">
+                            <p>h:</p>
+                            <input type="value" id="canvasHeightSize" value="500" oninput="setCanvasSize()">
+                        </div>
                     </div>
-                    <div style="width: 50%; display: flex;">
-                        <p>h:</p>
-                        <input type="value" id="canvasHeightSize" value="500" oninput="setCanvasSize()">
+                    <div class="systemButton" style="display: flex;">
+                        <input type="button" value="CLEAR" onclick="clearButton()">
                     </div>
                 </div>
-                <div class="systemButton" style="display: flex;">
-                    <input type="button" value="CLEAR" onclick="clearButton()">
+                <div class="setting">
+                    <p>DrawSize</p>
+                    <div style="display: flex;">
+                        <input type="range" id="drawSizeSlider" min="1" max="30" oninput="setDrawSizeSlider()">
+                        <p id="drawSizeValue"></p>
+                    </div>
+                    <div class="drawSizeTemplate" style="display: flex;">
+                        <input type="button" value="1" onclick="setDrawSize(1)">
+                        <input type="button" value="5" onclick="setDrawSize(5)">
+                        <input type="button" value="10" onclick="setDrawSize(10)">
+                        <input type="button" value="20" onclick="setDrawSize(20)">
+                    </div>
+                </div>
+                <div class="tool">
+                    <div>
+                        <p>ペン</p>
+                        <input type="button" id="pen" value="P" onclick="setSelectMode('PEN')">
+                    </div>
+                    <canvas width="180" height="40" id="pen_canvas"></canvas>
+                </div>
+                <div class="tool">
+                    <div>
+                        <p>筆</p>
+                        <input type="button" id="brush" value="B" onclick="setSelectMode('BRUSH')">
+                    </div>
+                    <canvas width="180" height="40" id="brush_canvas"></canvas>
+                </div>
+                <div class="tool">
+                    <div>
+                        <p>消しゴム</p>
+                        <input type="button" id="eraser" value="E" onclick="setSelectMode('ERASER')">
+                    </div>
+                    <canvas width="180" height="40" id="eraser_canvas"></canvas>
+                </div>
+                <div class="tool">
+                    <div>
+                        <p>塗り潰し</p>
+                        <input type="button" id="fill" value="F" onclick="setSelectMode('FILL')">
+                    </div>
+                    <canvas width="180" height="40" id="fill_canvas"></canvas>
+                </div>
+                <div class="tool">
+                    <div>
+                        <p>スポイト</p>
+                        <input type="button" id="eyedropper" value="S" onclick="setSelectMode('EYEDROPPER')">
+                    </div>
                 </div>
             </div>
-            <div class="setting">
-                <p>DrawSize</p>
-                <div style="display: flex;">
-                    <input type="range" id="drawSizeSlider" min="1" max="30" oninput="setDrawSizeSlider()">
-                    <p id="drawSizeValue"></p>
+            <div class="main">
+                <canvas width="500" height="500" id="main_canvas"></canvas>
+            </div>
+            <div class="right">
+                <div class="colorMemory box">
+                    <div class="memoryUI">
+                        <input type="button" value="SAVE" onclick="addColorMemory()">
+                        <input type="button" value="DEL" onclick="deleteColorMemory()">
+                    </div>
+                    <div id="memorySlot">
+                    </div>
                 </div>
-                <div class="drawSizeTemplate" style="display: flex;">
-                    <input type="button" value="1" onclick="setDrawSize(1)">
-                    <input type="button" value="5" onclick="setDrawSize(5)">
-                    <input type="button" value="10" onclick="setDrawSize(10)">
-                    <input type="button" value="20" onclick="setDrawSize(20)">
+                <div class="pallet box">
+                    <canvas width="200" height="200" id="pallet_canvas"></canvas>
+                    <canvas width="200" height="20" id="hsl_canvas"></canvas>
+                    <div style="display: flex;">
+                        <p id="hslValue_H" class="colorValue"></p>
+                        <p id="hslValue_S" class="colorValue"></p>
+                        <p id="hslValue_L" class="colorValue"></p>
+                    </div>
+                    <div style="display: flex;">
+                        <p id="rgbValue_R" class="colorValue"></p>
+                        <p id="rgbValue_G" class="colorValue"></p>
+                        <p id="rgbValue_B" class="colorValue"></p>
+                    </div>
                 </div>
             </div>
-            <div class="tool">
-                <input type="button" id="pen" value="P" onclick="setSelectMode('PEN')">
-                <canvas width="180" height="40" id="pen_canvas"></canvas>
-            </div>
-            <div class="tool">
-                <input type="button" id="eraser" value="E" onclick="setSelectMode('ERASER')">
-                <canvas width="180" height="40" id="eraser_canvas"></canvas>
-            </div>
-            <input type="button" value="色" id="irohyouji" style="background-color: black;">
         </div>
-        <div class="main">
-            <div class="header"></div>
-            <canvas width="500" height="500" id="main_canvas"></canvas>
-            <div class="footer"></div>
-        </div>
-
-        <div class="right">
-            <div class="pallet">
-                <canvas width="200" height="200" id="pallet_canvas"></canvas>
-                <canvas width="200" height="20" id="hsl_canvas"></canvas>
-                <div style="display: flex;">
-                    <p id="hslValue_H" class="hslValue"></p>
-                    <p id="hslValue_S" class="hslValue"></p>
-                    <p id="hslValue_L" class="hslValue"></p>
-                </div>
-            </div>
-            <div>
-                <input type="button" value="赤" style="background-color: red;" onclick="setColor('red')">
-                <input type="button" value="緑" style="background-color: green;" onclick="setColor('green')">
-                <input type="button" value="黄" style="background-color: yellow;" onclick="setColor('yellow')">
-                <input type="button" value="青" style="background-color: blue;" onclick="setColor('blue')">
-                <input type="button" value="紫" style="background-color: purple;" onclick="setColor('purple')">
-            </div>
-            <div>
-                <input type="button" value="灰" style="background-color: gray;" onclick="setColor('gray')">
-                <input type="button" value="白" style="background-color: white;" onclick="setColor('white')">
-                <input type="button" value="黒" style="background-color: black;" onclick="setColor('black')">
-                <input type="button" value="茶" style="background-color: sienna;" onclick="setColor('sienna')">
-                <input type="button" value="橙" style="background-color: orange;" onclick="setColor('orange')">
-                <input id="irosentaku" type="color" value="#000000" onchange="setAnyColor()">
-            </div>
-        </div>
+        <div class="footer"></div>
     </div>
 </body>
 
