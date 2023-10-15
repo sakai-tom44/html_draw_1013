@@ -1,3 +1,5 @@
+let brushSize = 0;
+
 function drawPoint(ctx, x, y, color = "black") {
     ctx.fillStyle = color;
     ctx.fillRect(x, y, 1, 1)
@@ -21,7 +23,9 @@ function drawPenUp(ctx) {
 
 function drawBrushLine(ctx, x1, y1, x2, y2, color = "black", width = 1) {
     let s = 5 * width / Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)) / 5;
+    s = ((brushSize * 9) + s) / 10; 
     s = Math.min(s, width)
+    brushSize = s;
     ctx.strokeStyle = color;
     ctx.lineWidth = s;
     ctx.lineCap = "round";
