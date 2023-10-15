@@ -34,6 +34,7 @@ function drawBrushLine(ctx, x1, y1, x2, y2, color = "black", width = 1) {
     ctx.lineTo(x2, y2);
     ctx.closePath();
     ctx.stroke();
+    fillCircle(ctx, x2, y2, s/2, color)
 }
 
 function eraserDown(ctx) {
