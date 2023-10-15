@@ -346,7 +346,7 @@ function addColorMemory() {
 }
 
 function deleteColorMemory() {
-    let templateColor = [[0, 0, 0], [0, 100, 50], [120, 100, 50], [240, 100, 50]];
+    let templateColor = [[0, 0, 0], [0, 0, 100], [0, 100, 50], [120, 100, 50], [240, 100, 50]];
     let str = "";
     for (let i = 0; i < templateColor.length; i++) {
         str += '<input type="button" style="background-color: ';
@@ -509,6 +509,5 @@ function refreshEraserCanvas() {
 }
 
 function refreshFillCanvas() {
-    drawMeshPattern(fillCtx, fillCanvas.width, fillCanvas.height);
-    fillRectangle(fillCtx, 0, 0, fillCanvas.width / 2, fillCanvas.height, toRGB(nowColor));
+    fillRectangle(fillCtx, 0, 0, fillCanvas.width, fillCanvas.height, toRGB(nowColor));
 }
