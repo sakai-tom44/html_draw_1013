@@ -122,6 +122,7 @@
                         <input type="button" value="ADD" onclick="addLayer()">
                         <input type="button" value="DEL" onclick="deleteLayer()">
                         <input type="button" value="CLE" onclick="clearButton()">
+                        <input type="button" value="MRG" onclick="mergeButton()">
                     </div>
                     <div id="layerList">
                         <input type="button" id="layerButton_0" value="レイヤー0" onclick="setSelectLayer(0)">
@@ -129,7 +130,11 @@
                 </div>
             </div>
         </div>
-        <div id="footer"></div>
+        <div id="footer">
+            <p id="selectModeText"></p>
+            <p id="rgbText"></p>
+            <p id="selectLayerText"></p>
+        </div>
     </div>
     <div class="information">
         <h1>詳細説明</h1>
@@ -185,6 +190,7 @@
             <p>[ADD]ボタンでレイヤーを新規追加(上層レイヤーの追加)<br>
                 [DEL]ボタンで最上層レイヤーを削除<br>
                 [CLE]ボタンで選択中のレイヤーを初期化。(最下層のレイヤーのみ白で塗り潰し。他レイヤーは透明化)<br>
+                [MRG]ボタンで選択中のレイヤーを下のレイヤーに上書き(結合)<br>
                 レイヤーボタンを押すことで選択レイヤーの変更。
             </p>
         </div>

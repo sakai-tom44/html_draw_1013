@@ -38,16 +38,6 @@ input[type="button"] {
     padding: 5px;
 }
 
-.tool input[type="button"] {
-    background-color: lightgray;
-    font-size: 16px;
-    width: 28px;
-    height: 28px;
-    padding: 5px;
-    margin-right: 15px;
-    margin-left: 10px;
-}
-
 .drawSizeTemplate input[type="button"] {
     background-color: lightgray;
     font-size: 12px;
@@ -126,6 +116,17 @@ input[type="range"]#fillThresholdSlider {
     height: 25px;
     background-color: rgb(150, 150, 150);
     bottom: 0;
+    padding-left: 10px;
+    display: flex;
+}
+
+#footer p{
+    border-right: rgb(73, 73, 73) 1px solid;
+    font-size: 12px;
+    color: #ffffff;
+    margin: 4px;
+    padding: 0;
+    padding-right: 10px;
 }
 
 .box {
@@ -158,6 +159,7 @@ input[type="range"]#fillThresholdSlider {
 
 #layerList input[type="button"] {
     font-size: 16px;
+    font-weight: bold;
     background-color: grey;
     color: #ffffff;
     width: 100%;
@@ -261,6 +263,16 @@ input[type="range"]#fillThresholdSlider {
     margin: 0;
     padding: 0;
     margin-right: 6px;
+}
+
+.tool input[type="button"] {
+    background-color: lightgray;
+    font-size: 16px;
+    width: 28px;
+    height: 28px;
+    padding: 5px;
+    margin-right: 15px;
+    margin-left: 10px;
 }
 
 input[type="range"].rgbSlider {
