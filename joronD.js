@@ -24,7 +24,7 @@ function drawBrushLine(ctx, x1, y1, x2, y2, color = "black", width = 1) {
     s = Math.min(s, width)
     ctx.strokeStyle = color;
     ctx.lineWidth = s;
-    ctx.lineCap = cap;
+    ctx.lineCap = "round";
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
