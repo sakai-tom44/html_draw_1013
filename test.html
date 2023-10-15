@@ -27,6 +27,7 @@
                     </div>
                     <div class="systemButton" style="display: flex;">
                         <input type="button" value="CLEAR" onclick="allClearButton()">
+                        <input type="button" value="UNDO" onclick="undo()">
                     </div>
                 </div>
                 <div class="setting">
@@ -142,8 +143,11 @@
         </div>
         <div class="infoBox">
             <h2>ツールバー(画面左)</h2>
-            <h3>◯キャンバス設定</h3>
-            <p>キャンバスの大きさを(w, h)で設定。<br>[CLEAR]ボタンを押すことですべてのレイヤーを初期化</p>
+            <h3>◯キャンバス操作</h3>
+            <p>キャンバスの大きさを(w, h)で設定。<br>
+                [CLEAR]ボタンですべてのレイヤーを初期化<br>
+                [UNDO]ボタンで前の状態に戻す。最大3回
+            </p>
             <h3>◯描画設定</h3>
             <p>線の太さをスライダーもしくはボタンで変更</p>
             <h3>◯各種ツール</h3>

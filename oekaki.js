@@ -25,6 +25,9 @@ let nowHsl_S = 0;
 let nowHsl_L = 0;
 let fillThreshold = 30;
 
+const UNDO_STACK = 3;
+let undoCanvas = {data:[], number:[]};
+
 window.addEventListener('load', () => {
     onload();
 }, false);
@@ -121,6 +124,7 @@ function clickPallet(e) {
 }
 
 function onMouseDown(e) {
+    saveCanvas();
     if (!isDraw) {
         isDraw = true;
         if (selectMode === "PEN") drawPenDown(gCtx[selectLayer]);
@@ -494,6 +498,7 @@ function refreshBrushCanvas() {
         let w = brushCanvas.width - 60;
         let s = -4 / (w * w) * i * (i - w) * nowDrawSize;
         drawLine(brushCtx, i + 30, (h / 2 + Math.sin(i * 2 * Math.PI / (w)) * h / 6), i + 1 + 30, (h / 2 + Math.sin((i + 1) * 2 * Math.PI / (w)) * h / 6), toRGB(nowColor), s);
+        fillCircle(brushCtx, i + 30, (h / 2 + Math.sin(i * 2 * Math.PI / (w)) * h / 6), s/2, toRGB(nowColor));
     }
 }
 
@@ -510,4 +515,24 @@ function refreshEraserCanvas() {
 
 function refreshFillCanvas() {
     fillRectangle(fillCtx, 0, 0, fillCanvas.width, fillCanvas.height, toRGB(nowColor));
+}
+
+function saveCanvas() {
+    if (undoCanvas.data.length >= UNDO_STACK){
+        undoCanvas.data.pop();
+        undoCanvas.number.pop();
+    }
+    undoCanvas.data.unshift(gCtx[selectLayer].getImageData(0, 0, gCanvas[selectLayer].width, gCanvas[selectLayer].height));
+    undoCanvas.number.unshift(selectLayer);
+}
+
+function undo() {
+    if(undoCanvas.data.length > 0){
+        let data = undoCanvas.data.shift();
+        let num = undoCanvas.number.shift();
+
+        if(num <= maxLayer){
+            gCtx[num].putImageData(data, 0, 0);
+        }
+    }
 }
