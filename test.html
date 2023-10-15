@@ -10,9 +10,9 @@
 
 <body>
     <div class="paintScene">
-        <div class="header"></div>
+        <div id="header"></div>
         <div class="group">
-            <div class="left">
+            <div id="left">
                 <div class="setting">
                     <p>Canvas</p>
                     <div style="display: flex;">
@@ -71,12 +71,14 @@
                     <canvas width="180" height="40" id="fill_canvas"></canvas>
                 </div>
             </div>
-            <div id="main" class="main">
-                <div class="canvas_group" id="canvas_group">
-                    <canvas width="500" height="500" class="main_canvas" id="canvas_0"></canvas>
+            <div id="main">
+                <div id="canvas_position">
+                    <div class="canvas_group" id="canvas_group">
+                        <canvas width="500" height="500" class="main_canvas" id="canvas_0"></canvas>
+                    </div>
                 </div>
             </div>
-            <div class="right">
+            <div id="right">
                 <div class="colorMemory box">
                     <div class="memoryUI">
                         <input type="button" value="SAVE" onclick="addColorMemory()">
@@ -126,7 +128,62 @@
                 </div>
             </div>
         </div>
-        <div class="footer"></div>
+        <div id="footer"></div>
+    </div>
+    <div class="information">
+        <h1>詳細説明</h1>
+        <div class="infoBox">
+            <h2>まずはじめに(Readme)</h2>
+            <p>確認済み動作環境 : GoogleChrome</p>
+            <p>jQueryやその他外部ライブラリなどを<strong>"一切使用せず"</strong>すべて自作のため、おそらく<strong>非効率的</strong>で高負荷なアルゴリズムを使用している<br>
+                また、規定の4枚(html,scc,js,js)にスクリプトコードをまとめたためコードが長くなりデバックできていない未知のバグが存在する可能性あり<br>
+                前述に理由でコードが見づらくなったため、ここにReadme.mdのような簡易的な説明を記述。
+            </p>
+        </div>
+        <div class="infoBox">
+            <h2>ツールバー(画面左)</h2>
+            <h3>◯キャンバス設定</h3>
+            <p>キャンバスの大きさを(w, h)で設定。<br>[CLEAR]ボタンを押すことですべてのレイヤーを初期化</p>
+            <h3>◯描画設定</h3>
+            <p>線の太さをスライダーもしくはボタンで変更</p>
+            <h3>◯各種ツール</h3>
+            <h4>ペン(pen)</h4>
+            <p>常に同じ太さで線を引く。既存のdrawLineでは線が途切れる問題があったためdrawPenLineに改修済み</p>
+            <h4>筆(brush)</h4>
+            <p>マウスの移動速度で線の太さが変わる線を引く</p>
+            <h4>消しゴム(eraser)</h4>
+            <p>複数レイヤー(後述)を実装したので、最下層のレイヤーのみ白で塗り潰し、それ以外のレイヤーの場合透明化</p>
+            <h4>塗り潰し(fill)</h4>
+            <p>他ペイントソフトのペンキのような、選択した場所から"同レイヤー"で色に囲まれている部分まですべて塗り潰し。<br>
+                ※アルゴリズムに改良の余地あり(現状では高負荷なアルゴリズム)<br>
+                ※当初、再帰を利用したアルゴリズムを考案したが、Stack数が上限を超え処理できず断念。
+            </p>
+        </div>
+        <div class="infoBox">
+            <h2>描画エリア(画面中央)</h2>
+            <h3>◯キャンバス</h3>
+            <p>もとのgCanvasとgCtxでは複数レイヤーに対応していないため、配列としてCanvasを持たせ理論上無限個のレイヤー機能を実装<br>
+                後述する画面右のレイヤー選択ボタンで変更を加えるレイヤーを選択。
+            </p>
+        </div>
+        <div class="infoBox">
+            <h2>カラーパレット/レイヤーメニュー(画面右)</h2>
+            <h3>◯カラーメモリ</h3>
+            <p>[SAVE]ボタンで現在選択されている色を保存。<br>
+                [DEL]ボタンで自分で保存した色をすべてて削除<br>
+                保存された色のボタンを押すことでその色を使用。
+            </p>
+            <h3>◯カラーパレット</h3>
+            <p>HSL形式の色選択。RGB形式の色選択。[S]ボタンを押すことでスポイト機能(レイヤーの選択した色を使用)<br>
+                ※内部ではRGBの256階調で色を保存しているためHSLで色を指定すると小数点以下の誤差が生じる(確認済み)。
+            </p>
+            <h3>◯レイヤーメニュー</h3>
+            <p>[ADD]ボタンでレイヤーを新規追加(上層レイヤーの追加)<br>
+                [DEL]ボタンで最上層レイヤーを削除<br>
+                [CLE]ボタンで選択中のレイヤーを初期化。(最下層のレイヤーのみ白で塗り潰し。他レイヤーは透明化)<br>
+                レイヤーボタンを押すことで選択レイヤーの変更。
+            </p>
+        </div>
     </div>
 </body>
 

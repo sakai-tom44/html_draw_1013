@@ -29,6 +29,17 @@ window.addEventListener('load', () => {
     onload();
 }, false);
 
+window.addEventListener('resize', () => {
+    updataCanvasPosition();
+}, false);
+
+document.addEventListener('DOMContentLoaded', () => {
+    const resizeObserver = new ResizeObserver((entries) => {
+        updataCanvasPosition();
+    });
+    resizeObserver.observe(document.querySelector('#main'));
+}, false)
+
 function onload() {
     gCanvas[0] = document.getElementById('canvas_0');
     gCtx[0] = gCanvas[0].getContext('2d');
@@ -112,10 +123,10 @@ function clickPallet(e) {
 function onMouseDown(e) {
     if (!isDraw) {
         isDraw = true;
-        if(selectMode === "PEN")drawPenDown(gCtx[selectLayer]);
-        if(selectMode === "ERASER"){
-            if(selectLayer === 0)drawPenDown(gCtx[selectLayer]);
-            if(selectLayer > 0)eraserDown(gCtx[selectLayer]);
+        if (selectMode === "PEN") drawPenDown(gCtx[selectLayer]);
+        if (selectMode === "ERASER") {
+            if (selectLayer === 0) drawPenDown(gCtx[selectLayer]);
+            if (selectLayer > 0) eraserDown(gCtx[selectLayer]);
         }
     }
     if (selectMode === "EYEDROPPER") eyedropperTool(e.offsetX, e.offsetY);
@@ -128,8 +139,8 @@ function onMouseMove(e) {
         if (selectMode === "PEN") drawPenLine(gCtx[selectLayer], e.offsetX, e.offsetY, toRGB(nowColor), nowDrawSize);
         if (selectMode === "BRUSH") drawBrushLine(gCtx[selectLayer], mousePoint[0], mousePoint[1], e.offsetX, e.offsetY, toRGB(nowColor), nowDrawSize);
         if (selectMode === "ERASER") {
-            if(selectLayer === 0)drawPenLine(gCtx[selectLayer], e.offsetX, e.offsetY, "white", nowDrawSize);
-            if(selectLayer > 0)eraserLine(gCtx[selectLayer], e.offsetX, e.offsetY, nowDrawSize);
+            if (selectLayer === 0) drawPenLine(gCtx[selectLayer], e.offsetX, e.offsetY, "white", nowDrawSize);
+            if (selectLayer > 0) eraserLine(gCtx[selectLayer], e.offsetX, e.offsetY, nowDrawSize);
         }
     }
     mousePoint = [e.offsetX, e.offsetY];
@@ -139,14 +150,14 @@ function onMouseUp(e) {
     if (isDraw) {
         if (selectMode === "PEN") drawPenLine(gCtx[selectLayer], e.offsetX, e.offsetY, toRGB(nowColor), nowDrawSize);
         if (selectMode === "ERASER") {
-            if(selectLayer === 0)drawPenLine(gCtx[selectLayer], e.offsetX, e.offsetY, "white", nowDrawSize);
-            if(selectLayer > 0)eraserLine(gCtx[selectLayer], e.offsetX, e.offsetY, nowDrawSize);
+            if (selectLayer === 0) drawPenLine(gCtx[selectLayer], e.offsetX, e.offsetY, "white", nowDrawSize);
+            if (selectLayer > 0) eraserLine(gCtx[selectLayer], e.offsetX, e.offsetY, nowDrawSize);
         }
         isDraw = false;
-        if(selectMode === "PEN")drawPenUp(gCtx[selectLayer])
-        if(selectMode === "ERASER"){
-            if(selectLayer === 0)drawPenUp(gCtx[selectLayer]);
-            if(selectLayer > 0)eraserUp(gCtx[selectLayer]);
+        if (selectMode === "PEN") drawPenUp(gCtx[selectLayer])
+        if (selectMode === "ERASER") {
+            if (selectLayer === 0) drawPenUp(gCtx[selectLayer]);
+            if (selectLayer > 0) eraserUp(gCtx[selectLayer]);
         }
     }
     mousePoint = null;
@@ -222,6 +233,7 @@ function rgbToHsl(rgb) {
 
 function setCanvasSize() {
     allClearCanvas();
+    updataCanvasPosition()
 }
 
 function setDrawSize(w) {
@@ -277,12 +289,12 @@ function setHslColor() {
 }
 
 function hslToRgb(h, s, l) {
+    let r = 0;
+    let g = 0;
+    let b = 0;
     if (((h || h === 0) && h <= 360) && ((s || s === 0) && s <= 100) && ((l || l === 0) && l <= 100)) {
-        var r = 0,
-            g = 0,
-            b = 0,
-            q = 0,
-            p = 0;
+        let q = 0;
+        let p = 0;
         h = Number(h) / 360;
         s = Number(s) / 100;
         l = Number(l) / 100;
@@ -291,7 +303,7 @@ function hslToRgb(h, s, l) {
             g = l;
             b = l;
         } else {
-            var hueToRgb = function (p, q, t) {
+            let hueToRgb = function (p, q, t) {
                 if (t < 0) t += 1;
                 if (t > 1) t -= 1;
 
@@ -400,6 +412,20 @@ function updataLayerButton() {
     }
 }
 
+function updataCanvasPosition() {
+    let mainWidth = document.getElementById("main").clientWidth;
+    let mainHeight = document.getElementById("main").clientHeight;
+    let canvasWidth = document.getElementById("canvas_0").clientWidth;
+    let canvasHeight = document.getElementById("canvas_0").clientHeight;
+
+    let w = (mainWidth - canvasWidth) / 2;
+    let h = (mainHeight - canvasHeight) / 2.5;
+    if (h < 50)h = 50;
+
+    document.getElementById("canvas_position").style.marginLeft = w + "px";
+    document.getElementById("canvas_position").style.marginTop = h + "px";
+}
+
 function clearButton() {
     if (window.confirm('本当にこのレイヤーを初期化しますか？')) {
         clearCanvas();
@@ -407,9 +433,9 @@ function clearButton() {
 }
 
 function clearCanvas() {
-    if(selectLayer === 0){
+    if (selectLayer === 0) {
         fillRectangle(gCtx[0], 0, 0, gCanvas[0].width, gCanvas[0].height, "white");
-    }else{
+    } else {
         gCanvas[selectLayer].width = document.getElementById('canvasWidthSize').value;
         gCanvas[selectLayer].height = document.getElementById('canvasHeightSize').value;
     }

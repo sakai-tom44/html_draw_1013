@@ -1,42 +1,44 @@
-body{
+body {
     background-color: white;
 }
 
-.canvas_group{
+.canvas_group {
     width: 100%;
     position: relative;
     margin: 0;
     padding: 0;
     box-sizing: content-box;
 }
-.canvas_group:before{
-    content:"";
+
+.canvas_group:before {
+    content: "";
     display: block;
     padding-top: 50%;
 }
-.main_canvas{
+
+.main_canvas {
     position: absolute;
-    left:0;
-    top:0;
+    left: 0;
+    top: 0;
     border: 0;
-    max-width:100%;
+    max-width: 100%;
     box-sizing: content-box;
     padding: 0;
     margin: 0;
 }
 
-.paintScene{
+.paintScene {
     border: black 1px solid;
 }
 
-input[type="button"]{
+input[type="button"] {
     font-size: 20px;
     width: 40px;
     height: 40px;
     padding: 5px;
 }
 
-.tool input[type="button"]{
+.tool input[type="button"] {
     background-color: lightgray;
     font-size: 16px;
     width: 28px;
@@ -46,7 +48,7 @@ input[type="button"]{
     margin-left: 5px;
 }
 
-.drawSizeTemplate input[type="button"]{
+.drawSizeTemplate input[type="button"] {
     background-color: lightgray;
     font-size: 12px;
     width: 18%;
@@ -56,7 +58,7 @@ input[type="button"]{
 }
 
 
-.systemButton input[type="button"]{
+.systemButton input[type="button"] {
     background-color: lightgray;
     font-size: 12px;
     width: 24%;
@@ -66,7 +68,7 @@ input[type="button"]{
     margin-top: 12px;
 }
 
-.setting input[type="range"]{
+.setting input[type="range"] {
     background-color: lightgray;
     font-size: 0;
     width: 180px;
@@ -88,72 +90,73 @@ input[type="range"]#fillThresholdSlider {
     padding: 0;
 }
 
-.group{
+.group {
     display: flex;
 }
 
-.left{
+#left {
     width: 260px;
     background-color: gray;
     border: black 1px solid;
     padding: 5px;
 }
 
-.main{
+#main {
     width: calc(100% - 400px);
     background-color: #5a5a5a;
     text-align: center;
     border: black 1px solid;
-    padding: 50px;
+    padding: 0;
+    min-height: 700px;
 }
 
-.right{
+#right {
     width: 260px;
     background-color: gray;
     border: black 1px solid;
     padding: 5px;
 }
 
-.header{
+#header {
     height: 25px;
     background-color: rgb(150, 150, 150);
 }
 
-.footer{
+#footer {
     height: 25px;
     background-color: rgb(150, 150, 150);
     bottom: 0;
 }
 
-.box{
+.box {
     background-color: rgb(110, 110, 110);
     border: gray 1px solid;
     text-align: center;
 }
 
-.pallet{
+.pallet {
     padding: 15px;
     margin-bottom: 5px;
 }
 
-.colorMemory{
+.colorMemory {
     padding: 8px;
     margin-bottom: 5px;
 }
 
-.layerMenue{
+.layerMenue {
     padding: 8px;
     margin-bottom: 5px;
 
 }
 
-#layerList{
+#layerList {
     border: rgb(73, 73, 73) 2px solid;
     padding: 2px;
     padding-top: 5px;
 }
 
-#layerList input[type="button"]{
+#layerList input[type="button"] {
     font-size: 16px;
     background-color: grey;
     color: #ffffff;
@@ -161,11 +164,11 @@ input[type="range"]#fillThresholdSlider {
     height: 40px;
 }
 
-.layerUI{
+.layerUI {
     display: flex;
 }
 
-.layerUI input[type="button"]{
+.layerUI input[type="button"] {
     background-color: gray;
     color: lightgray;
     font-size: 10px;
@@ -176,14 +179,14 @@ input[type="range"]#fillThresholdSlider {
     padding: 0;
 }
 
-#memorySlot{
+#memorySlot {
     border: rgb(73, 73, 73) 2px solid;
     display: flex;
     flex-wrap: wrap;
     padding: 5px;
 }
 
-#memorySlot input[type="button"]{
+#memorySlot input[type="button"] {
     width: 26px;
     height: 10px;
     margin: 1.36px;
@@ -193,7 +196,7 @@ input[type="range"]#fillThresholdSlider {
     display: flex;
 }
 
-.memoryUI input[type="button"]{
+.memoryUI input[type="button"] {
     background-color: gray;
     color: lightgray;
     font-size: 10px;
@@ -204,7 +207,7 @@ input[type="range"]#fillThresholdSlider {
     padding: 0;
 }
 
-.colorValue{
+.colorValue {
     border: gray 1px solid;
     text-align: left;
     font-weight: bold;
@@ -215,7 +218,7 @@ input[type="range"]#fillThresholdSlider {
     color: white;
 }
 
-#colorSample{
+#colorSample {
     border-left: gray 1px solid;
     border-right: gray 1px solid;
     width: 99%;
@@ -224,7 +227,7 @@ input[type="range"]#fillThresholdSlider {
     margin: 0;
 }
 
-.setting{
+.setting {
     background-color: rgb(110, 110, 110);
     padding: 5px;
     margin-bottom: 5px;
@@ -237,14 +240,14 @@ input[type="range"]#fillThresholdSlider {
     padding: 0;
 }
 
-.setting input{
+.setting input {
     font-size: 12px;
     height: 12px;
     width: 60%;
     margin: 4px;
 }
 
-.tool{
+.tool {
     background-color: rgb(110, 110, 110);
     padding: 5px;
     margin-bottom: 5px;
@@ -274,15 +277,15 @@ input[type="range"].rgbSlider {
     padding: 0;
 }
 
-input[type="range"].rgbSlider#rgbSlider_R{
+input[type="range"].rgbSlider#rgbSlider_R {
     background: #ff0000;
 }
 
-input[type="range"].rgbSlider#rgbSlider_G{
+input[type="range"].rgbSlider#rgbSlider_G {
     background: #00ff00;
 }
 
-input[type="range"].rgbSlider#rgbSlider_B{
+input[type="range"].rgbSlider#rgbSlider_B {
     background: #0000ff;
 }
 
@@ -297,4 +300,13 @@ input[type="range"].rgbSlider::-webkit-slider-thumb {
 
     margin: 0;
     padding: 0;
-  }
+}
+
+.information{
+    margin: 25px;
+}
+
+.infoBox{
+    padding: 25px;
+    border: 1px solid lightgrey;
+}
