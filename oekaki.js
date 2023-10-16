@@ -186,21 +186,40 @@ function toRGB(c) {
 }
 
 function fillTool(x, y) {
+    let w = gCanvas[selectLayer].width;
+    let h = gCanvas[selectLayer].height;
+    let data = gCtx[selectLayer].getImageData(0, 0, w, h);
+
+    let getRGB = function(x, y){
+        let r = data.data[(y * w + x) * 4];
+        let g = data.data[(y * w + x) * 4 + 1];
+        let b = data.data[(y * w + x) * 4 + 2];
+        let a = data.data[(y * w + x) * 4 + 3];
+        return [r,g,b,a];
+    }
+    let setRGB = function(x, y, rgb, a = 255){
+        data.data[(y * w + x) * 4] = rgb[0];
+        data.data[(y * w + x) * 4 + 1] = rgb[1];
+        data.data[(y * w + x) * 4 + 2] = rgb[2];
+        data.data[(y * w + x) * 4 + 3] = a;
+    }
+
     let targetColor = gCtx[selectLayer].getImageData(x, y, 1, 1).data;
     let buffer = [];
     buffer.push([x, y]);
     while (buffer.length > 0) {
         let pos = buffer.pop();
-        if (pos[0] < 0 || pos[0] >= gCanvas[selectLayer].width || pos[1] < 0 || pos[1] >= gCanvas[selectLayer].height) continue;
-        let posColor = gCtx[selectLayer].getImageData(pos[0], pos[1], 1, 1).data;
+        if (pos[0] < 0 || pos[0] >= w || pos[1] < 0 || pos[1] >= h) continue;
+        let posColor = getRGB(pos[0], pos[1]);
         if (colorMatch(nowColor, posColor)) continue;
         if (!colorMatch(targetColor, posColor)) continue;
-        drawPoint(gCtx[selectLayer], pos[0], pos[1], toRGB(nowColor));
+        setRGB(pos[0], pos[1], nowColor);
         buffer.push([pos[0] - 1, pos[1]]);
         buffer.push([pos[0], pos[1] - 1]);
         buffer.push([pos[0], pos[1] + 1]);
         buffer.push([pos[0] + 1, pos[1]]);
     }
+    gCtx[selectLayer].putImageData(data, 0, 0);
 }
 
 function colorMatch(c1, c2) {
@@ -487,21 +506,38 @@ function allClearCanvas() {
 }
 
 function refreshPallet() {
-    fillRectangle(pCtx, 0, 0, pCanvas.width, pCanvas.height, "white");
+    let data = pCtx.getImageData(0, 0, pCanvas.width, pCanvas.height);
     for (let i = 0; i < 200; i++) {
         for (let j = 0; j < 200; j++) {
-            drawPoint(pCtx, j, i, "hsl(" + nowHsl_H + ", " + 100 * (j / 200) + "% ," + (100 - 100 * (i / 200)) + "%)");
+            let h = nowHsl_H;
+            let s = 100 * (j / 200);
+            let l = (100 - 100 * (i / 200));
+            let rgb = hslToRgb(h, s, l);
+            data.data[(i * 200 + j) * 4] = rgb[0];
+            data.data[(i * 200 + j) * 4 + 1] = rgb[1];
+            data.data[(i * 200 + j) * 4 + 2] = rgb[2];
+            data.data[(i * 200 + j) * 4 + 3] = 255;
         }
     }
+    pCtx.putImageData(data, 0, 0);
     drawRectangle(pCtx, nowHsl_S * 2 - 3, ((100 - nowHsl_L) * 2) - 3, 6, 6, "black", 1);
     drawRectangle(pCtx, nowHsl_S * 2 - 2, ((100 - nowHsl_L) * 2) - 2, 4, 4, "white", 1);
 }
 
 function refreshHslCanvas() {
+    let data = hslCtx.getImageData(0, 0, hslCanvas.width, hslCanvas.height);
     fillRectangle(hslCtx, 0, 0, hslCanvas.width, hslCanvas.height, "white");
-    for (let i = 0; i < 200; i++) {
-        drawLine(hslCtx, i, 0, i, 20, "hsl(" + 360 * i / 200 + ", 100%, 50%)");
+    for (let i = 0; i < hslCanvas.height; i++) {
+        for (let j = 0; j < 200; j++) {
+            let h = 360 * j / 200;
+            let rgb = hslToRgb(h, 100, 50);
+            data.data[(i * 200 + j) * 4] = rgb[0];
+            data.data[(i * 200 + j) * 4 + 1] = rgb[1];
+            data.data[(i * 200 + j) * 4 + 2] = rgb[2];
+            data.data[(i * 200 + j) * 4 + 3] = 255;
+        }
     }
+    hslCtx.putImageData(data, 0, 0);
     drawLine(hslCtx, 200 * nowHsl_H / 360 - 1, 0, 200 * nowHsl_H / 360 - 1, 20, "black");
     drawLine(hslCtx, 200 * nowHsl_H / 360 + 0, 0, 200 * nowHsl_H / 360 + 0, 20, "white");
     drawLine(hslCtx, 200 * nowHsl_H / 360 + 1, 0, 200 * nowHsl_H / 360 + 1, 20, "black");
