@@ -71,10 +71,18 @@
                     </div>
                     <canvas width="175" height="40" id="fill_canvas"></canvas>
                 </div>
+                <div class="copyAndPaste">
+                    <div style="display: flex; margin: 0 10%;">
+                        <input type="button" id="copy" value="COPY" onclick="setSelectMode('COPY')">
+                        <input type="button" id="paset" value="PASET" onclick="setSelectMode('PASET')">
+                    </div>
+                    <canvas width="200" height="200" id="copy_canvas"></canvas>
+                </div>
             </div>
             <div id="main">
                 <div id="canvas_position">
                     <div class="canvas_group" id="canvas_group">
+                        <canvas width="500" height="500" class="main_canvas" id="top_canvas"></canvas>
                         <canvas width="500" height="500" class="main_canvas" id="canvas_0"></canvas>
                     </div>
                 </div>
@@ -84,6 +92,7 @@
                     <div class="memoryUI">
                         <input type="button" value="SAVE" onclick="addColorMemory()">
                         <input type="button" value="DEL" onclick="deleteColorMemory()">
+                        <input type="button" value="CLE" onclick="clearColorMemory()">
                     </div>
                     <div id="memorySlot">
                     </div>
@@ -167,6 +176,10 @@
                 ※アルゴリズムに改良の余地あり(現状では高負荷なアルゴリズム)<br>
                 ※当初、再帰を利用したアルゴリズムを考案したが、Stack数が上限を超え処理できず断念。
             </p>
+            <h4>コピー＆ペースト(copy and paset)</h4>
+            <p>[COPY]ボタンを押した状態でマウスで囲んだ部分をコピー<br>
+                [PASET]ボタンを押してクリックした場所にペースト<br>
+            </p>
         </div>
         <div class="infoBox">
             <h2>描画エリア(画面中央)</h2>
@@ -179,7 +192,8 @@
             <h2>カラーパレット/レイヤーメニュー(画面右)</h2>
             <h3>◯カラーメモリ</h3>
             <p>[SAVE]ボタンで現在選択されている色を保存。<br>
-                [DEL]ボタンで自分で保存した色をすべてて削除<br>
+                [DEL]ボタンで保存した最新の色を削除<br>
+                [CLE]ボタンで保存した色をすべて削除<br>
                 保存された色のボタンを押すことでその色を使用。
             </p>
             <h3>◯カラーパレット</h3>

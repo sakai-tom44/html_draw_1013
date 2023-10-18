@@ -22,9 +22,10 @@ function drawPenUp(ctx) {
 }
 
 function drawBrushLine(ctx, x1, y1, x2, y2, color = "black", width = 1) {
-    let s = 5 * width / Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)) / 5;
-    s = ((brushSize * 5) + s) / 6;
-    s = Math.min(s, width)
+    let s = 5 * width / (Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2))) / 5;
+    s = ((brushSize * 10) + s) / 11;
+    s = Math.min(s, width);
+    s = Math.max(s, width/5);
     brushSize = s;
     ctx.strokeStyle = color;
     ctx.lineWidth = s;
