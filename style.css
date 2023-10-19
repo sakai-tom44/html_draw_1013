@@ -2,7 +2,7 @@ body {
     background-color: white;
 }
 
-#top_canvas{
+#top_canvas {
     z-index: 10000;
 }
 
@@ -52,14 +52,44 @@ input[type="button"] {
 }
 
 
-.systemButton input[type="button"] {
+.systemButton-1 input[type="button"] {
     background-color: lightgray;
     font-size: 12px;
     width: 24%;
     height: 30px;
     padding: 0px;
     margin: 2px;
-    margin-top: 12px;
+    margin-top: 10px;
+}
+
+.systemButton-2 input[type="button"] {
+    background-color: lightgray;
+    font-size: 12px;
+    width: 30%;
+    height: 30px;
+    padding: 0px;
+    margin: 2px;
+    margin-top: 4px;
+}
+
+.fileImport {
+    text-align: center;
+    display: inline-block;
+    font-size:  13px;
+    width: 30%;
+    margin: 2px;
+    margin-top: 4px;
+    padding-top: 3px;
+    background: lightgray;
+    border: #383838 solid 2px;
+    color: #000000;
+    cursor: pointer
+}
+
+#import {
+    position: absolute;
+    opacity: 0;
+    width: 10px;
 }
 
 .setting input[type="range"] {
@@ -124,7 +154,7 @@ input[type="range"]#fillThresholdSlider {
     display: flex;
 }
 
-#footer p{
+#footer p {
     border-right: rgb(73, 73, 73) 1px solid;
     font-size: 12px;
     color: #ffffff;
@@ -334,11 +364,11 @@ input[type="range"].rgbSlider::-webkit-slider-thumb {
     padding: 0;
 }
 
-.information{
+.information {
     margin: 25px;
 }
 
-.infoBox{
+.infoBox {
     padding: 25px;
     border: 1px solid lightgrey;
 }

@@ -1,5 +1,7 @@
 let topCanvas;
 let topCtx;
+let backCanvas;
+let backCtx;
 let gCanvas = [];
 let gCtx = [];
 let pCanvas;
@@ -20,8 +22,9 @@ let mousePoint = null;
 let isDraw = false;
 let selectMode = "PEN";
 let selectLayer = 0;
-let maxLayer = 0;
+let maxLayer = -1;
 let maxColorMemory = 0;
+let importButton;
 
 let nowDrawSize = 1;
 let nowColor = [0, 0, 0];
@@ -33,8 +36,9 @@ let fillThreshold = 30;
 let mouseDownPoint = [];
 let mouseLastPoint = [];
 
-const UNDO_STACK = 3;
+const UNDO_STACK = 10;
 let undoCanvas = { data: [], number: [] };
+let redoCanvas = { data: [], number: [] };
 
 let copyData = null;
 
@@ -56,8 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function onload() {
     topCanvas = document.getElementById('top_canvas');
     topCtx = topCanvas.getContext('2d');
-    gCanvas[0] = document.getElementById('canvas_0');
-    gCtx[0] = gCanvas[0].getContext('2d');
+    backCanvas = document.getElementById('back_canvas');
+    backCtx = backCanvas.getContext('2d');
     pCanvas = document.getElementById('pallet_canvas');
     pCtx = pCanvas.getContext('2d');
     hslCanvas = document.getElementById('hsl_canvas');
@@ -72,6 +76,7 @@ function onload() {
     eraserCtx = eraserCanvas.getContext('2d');
     copyCanvas = document.getElementById('copy_canvas');
     copyCtx = copyCanvas.getContext('2d');
+    for (let i = 0; i < 3; i++) addLayer();
     footerUpdate();
     setCanvasSize();
     setSelectMode();
@@ -89,6 +94,8 @@ function onload() {
     topCanvas.addEventListener('mouseup', onMouseUp, false);
     pCanvas.addEventListener('click', clickPallet, false);
     hslCanvas.addEventListener('click', clickHsl, false);
+
+    importButton = document.getElementById('import');
 }
 
 function setSelectMode(mode = "PEN") {
@@ -114,8 +121,8 @@ function setSelectMode(mode = "PEN") {
     document.getElementById('eyedropper').style.color = hideC;
     document.getElementById('copy').style.backgroundColor = hideB;
     document.getElementById('copy').style.color = hideC;
-    document.getElementById('paset').style.backgroundColor = hideB;
-    document.getElementById('paset').style.color = hideC;
+    document.getElementById('paste').style.backgroundColor = hideB;
+    document.getElementById('paste').style.color = hideC;
 
     if (selectMode === "PEN") {
         document.getElementById('pen').style.backgroundColor = selectB;
@@ -142,8 +149,8 @@ function setSelectMode(mode = "PEN") {
         document.getElementById('copy').style.color = selectC;
     }
     if (selectMode === "PASET") {
-        document.getElementById('paset').style.backgroundColor = selectB;
-        document.getElementById('paset').style.color = selectC;
+        document.getElementById('paste').style.backgroundColor = selectB;
+        document.getElementById('paste').style.color = selectC;
     }
 
     updateTopCanvas();
@@ -168,51 +175,42 @@ function onMouseDown(e) {
     if (!isDraw) {
         isDraw = true;
         if (selectMode === "PEN") drawPenDown(gCtx[selectLayer]);
-        if (selectMode === "ERASER") {
-            if (selectLayer === 0) drawPenDown(gCtx[selectLayer]);
-            if (selectLayer > 0) eraserDown(gCtx[selectLayer]);
-        }
+        if (selectMode === "ERASER") eraserDown(gCtx[selectLayer]);
     }
     if (selectMode === "EYEDROPPER") eyedropperTool(e.offsetX, e.offsetY);
     if (selectMode === "FILL") fillTool(e.offsetX, e.offsetY);
-    if (selectMode === "PASET") pasetCopyData();
+    if (selectMode === "PASTE") pasetCopyData();
     mousePoint = [e.offsetX, e.offsetY];
     mouseDownPoint = [e.offsetX, e.offsetY];
     mouseLastPoint = null;
     updateTopCanvas();
+    footerUpdate();
 }
 
 function onMouseMove(e) {
     if (isDraw) {
         if (selectMode === "PEN") drawPenLine(gCtx[selectLayer], e.offsetX, e.offsetY, toRGB(nowColor), nowDrawSize);
         if (selectMode === "BRUSH") drawBrushLine(gCtx[selectLayer], mousePoint[0], mousePoint[1], e.offsetX, e.offsetY, toRGB(nowColor), nowDrawSize);
-        if (selectMode === "ERASER") {
-            if (selectLayer === 0) drawPenLine(gCtx[selectLayer], e.offsetX, e.offsetY, "white", nowDrawSize);
-            if (selectLayer > 0) eraserLine(gCtx[selectLayer], e.offsetX, e.offsetY, nowDrawSize);
-        }
+        if (selectMode === "ERASER") eraserLine(gCtx[selectLayer], e.offsetX, e.offsetY, nowDrawSize);
         mouseLastPoint = [e.offsetX, e.offsetY];
     }
     mousePoint = [e.offsetX, e.offsetY];
     updateTopCanvas();
+    footerUpdate();
 }
 
 function onMouseUp(e) {
     if (isDraw) {
         if (selectMode === "PEN") drawPenLine(gCtx[selectLayer], e.offsetX, e.offsetY, toRGB(nowColor), nowDrawSize);
-        if (selectMode === "ERASER") {
-            if (selectLayer === 0) drawPenLine(gCtx[selectLayer], e.offsetX, e.offsetY, "white", nowDrawSize);
-            if (selectLayer > 0) eraserLine(gCtx[selectLayer], e.offsetX, e.offsetY, nowDrawSize);
-        }
+        if (selectMode === "ERASER") eraserLine(gCtx[selectLayer], e.offsetX, e.offsetY, nowDrawSize);
         isDraw = false;
         if (selectMode === "PEN") drawPenUp(gCtx[selectLayer])
-        if (selectMode === "ERASER") {
-            if (selectLayer === 0) drawPenUp(gCtx[selectLayer]);
-            if (selectLayer > 0) eraserUp(gCtx[selectLayer]);
-        }
+        if (selectMode === "ERASER") eraserUp(gCtx[selectLayer]);
         if (selectMode === "COPY") setCopyData();
     }
     mouseLastPoint = [e.offsetX, e.offsetY];
     updateTopCanvas();
+    footerUpdate();
 }
 
 function setCopyData() {
@@ -237,7 +235,7 @@ function updateTopCanvas() {
         if (selectMode == "COPY" && mouseDownPoint != null && mouseLastPoint != null) {
             drawRectangle(topCtx, mouseDownPoint[0], mouseDownPoint[1], mouseLastPoint[0] - mouseDownPoint[0], mouseLastPoint[1] - mouseDownPoint[1], "red", 1);
         }
-        if (selectMode == "PASET" && copyData != null) {
+        if (selectMode == "PASTE" && copyData != null) {
             let x = mousePoint[0] - (copyData.width / 2);
             let y = mousePoint[1] - (copyData.height / 2);
             topCtx.putImageData(copyData, x, y);
@@ -250,6 +248,7 @@ function footerUpdate() {
     document.getElementById('selectModeText').innerHTML = "selectMode : " + selectMode;
     document.getElementById('rgbText').innerHTML = "R : " + nowColor[0] + " / G : " + nowColor[1] + " / B : " + nowColor[2];
     document.getElementById('selectLayerText').innerHTML = "selectLayer : " + selectLayer;
+    document.getElementById('undoRedoText').innerHTML = "undo : " + undoCanvas.data.length + " / redo : " + redoCanvas.data.length;
 }
 
 function toRGB(c) {
@@ -301,14 +300,19 @@ function colorMatch(c1, c2) {
 }
 
 function eyedropperTool(x, y) {
-    let hsl = getCanvasColor(gCtx[selectLayer], x, y);
-    setColor(hsl[0], hsl[1], hsl[2]);
+    let rgb = getCanvasColor(gCtx[selectLayer], x, y);
+    if (rgb[3] > 0) {
+        setColor(rgb[0], rgb[1], rgb[2]);
+    }
 }
 
 function getCanvasColor(ctx, x, y) {
-    let rgb = ctx.getImageData(x, y, 1, 1);
-    let hsl = rgbToHsl(rgb.data);
-    return hsl;
+    let rgb = ctx.getImageData(x, y, 1, 1).data;
+    let r = Math.floor(rgb[0]);
+    let g = Math.floor(rgb[1]);
+    let b = Math.floor(rgb[2]);
+    let a = Math.floor(rgb[3]);
+    return [r, g, b, a];
 }
 
 function rgbToHsl(rgb) {
@@ -336,6 +340,9 @@ function rgbToHsl(rgb) {
             h = (60 * ((g - r) / diff)) + 60;
             break;
     }
+    h = Math.floor(h * 10) / 10;
+    s = Math.floor(s * 100) / 100;
+    l = Math.floor(l * 100) / 100;
     return [h, s, l];
 }
 
@@ -447,9 +454,10 @@ function hslToRgb(h, s, l) {
 
 function setColor(r, g, b) {
     nowColor = [r, g, b];
-    nowHsl_H = rgbToHsl(nowColor)[0];
-    nowHsl_S = rgbToHsl(nowColor)[1];
-    nowHsl_L = rgbToHsl(nowColor)[2];
+    let hsl = rgbToHsl(nowColor);
+    nowHsl_H = hsl[0];
+    nowHsl_S = hsl[1];
+    nowHsl_L = hsl[2];
     updataColor();
 }
 
@@ -567,11 +575,7 @@ function clearButton() {
 }
 
 function clearCanvas() {
-    if (selectLayer === 0) {
-        fillRectangle(gCtx[0], 0, 0, gCanvas[0].width, gCanvas[0].height, "white");
-    } else {
-        gCtx[selectLayer].clearRect(0, 0, gCanvas[selectLayer].width, gCanvas[selectLayer].height);
-    }
+    gCtx[selectLayer].clearRect(0, 0, gCanvas[selectLayer].width, gCanvas[selectLayer].height);
 }
 
 function allClearButton() {
@@ -581,12 +585,14 @@ function allClearButton() {
 }
 
 function allClearCanvas() {
-    for (let i = 1; i <= maxLayer; i++) {
+    for (let i = 0; i <= maxLayer; i++) {
         gCtx[i].clearRect(0, 0, gCanvas[i].width, gCanvas[i].height)
     }
-    fillRectangle(gCtx[0], 0, 0, gCanvas[0].width, gCanvas[0].height, "white");
+    fillRectangle(backCtx, 0, 0, backCanvas.width, backCanvas.height, "white");
     undoCanvas.data = [];
     undoCanvas.number = [];
+    redoCanvas.data = [];
+    redoCanvas.number = [];
 }
 
 function refreshPallet() {
@@ -666,15 +672,18 @@ function refreshFillCanvas() {
 
 function refreshCopyCanvas() {
     //drawMeshPattern(copyCtx, copyCanvas.width, copyCanvas.height);
+    copyCtx.clearRect(0, 0, copyCanvas.width, copyCanvas.height);
 
     if (copyData != null) {
         copyCtx.putImageData(copyData, 0, 0);
     }
 
-    drawRectangle(copyCtx, 1, 1, copyCanvas.width-2, copyCanvas.height-2, "gray", 2)
+    drawRectangle(copyCtx, 1, 1, copyCanvas.width - 2, copyCanvas.height - 2, "gray", 2)
 }
 
 function saveCanvas() {
+    redoCanvas.data = [];
+    redoCanvas.number = [];
     if (undoCanvas.data.length >= UNDO_STACK) {
         undoCanvas.data.pop();
         undoCanvas.number.pop();
@@ -685,6 +694,9 @@ function saveCanvas() {
 
 function undo() {
     if (undoCanvas.data.length > 0) {
+        redoCanvas.data.unshift(gCtx[selectLayer].getImageData(0, 0, gCanvas[selectLayer].width, gCanvas[selectLayer].height));
+        redoCanvas.number.unshift(selectLayer);
+
         let data = undoCanvas.data.shift();
         let num = undoCanvas.number.shift();
 
@@ -692,4 +704,45 @@ function undo() {
             gCtx[num].putImageData(data, 0, 0);
         }
     }
+    footerUpdate();
+}
+
+function redo() {
+    if (redoCanvas.data.length > 0) {
+        undoCanvas.data.unshift(gCtx[selectLayer].getImageData(0, 0, gCanvas[selectLayer].width, gCanvas[selectLayer].height));
+        undoCanvas.number.unshift(selectLayer);
+
+        let data = redoCanvas.data.shift();
+        let num = redoCanvas.number.shift();
+
+        if (num <= maxLayer) {
+            gCtx[num].putImageData(data, 0, 0);
+        }
+    }
+    footerUpdate();
+}
+
+function exportImage() {
+    for (let i = 0; i < gCanvas.length; i++) {
+        backCtx.drawImage(gCanvas[i], 0, 0);
+    }
+
+    let a = document.createElement("a");
+    a.href = backCanvas.toDataURL("image/jpeg", 1);
+    fillRectangle(backCtx, 0, 0, backCanvas.width, backCanvas.height, "white");
+    a.download = "download.jpg";
+    a.click();
+}
+
+function importImage() {
+    importButton.addEventListener("change", function (e) {
+        let file = e.target.files[0];
+        let reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+            let image = new Image();
+            image.src = reader.result;
+            gCtx[selectLayer].drawImage(image, 0, 0, gCanvas[selectLayer].width, gCanvas[selectLayer].height);
+        }
+    }, false);
 }

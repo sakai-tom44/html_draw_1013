@@ -25,9 +25,16 @@
                             <input type="value" id="canvasHeightSize" value="500" oninput="setCanvasSize()">
                         </div>
                     </div>
-                    <div class="systemButton" style="display: flex;">
+                    <div class="systemButton-1" style="display: flex;">
                         <input type="button" value="CLEAR" onclick="allClearButton()">
                         <input type="button" value="UNDO" onclick="undo()">
+                        <input type="button" value="REDO" onclick="redo()">
+                    </div>
+                    <div class="systemButton-2" style="display: flex;">
+                        <input type="button" value="EXPORT" onclick="exportImage()">
+                        <label class="fileImport" tabindex="0">
+                            <input type="file" id="import" accept=".png, .jpg, .jpeg" onclick="importImage()">IMPORT
+                        </label>
                     </div>
                 </div>
                 <div class="setting">
@@ -74,7 +81,7 @@
                 <div class="copyAndPaste">
                     <div style="display: flex; margin: 0 10%;">
                         <input type="button" id="copy" value="COPY" onclick="setSelectMode('COPY')">
-                        <input type="button" id="paset" value="PASET" onclick="setSelectMode('PASET')">
+                        <input type="button" id="paste" value="PASTE" onclick="setSelectMode('PASTE')">
                     </div>
                     <canvas width="200" height="200" id="copy_canvas"></canvas>
                 </div>
@@ -83,7 +90,7 @@
                 <div id="canvas_position">
                     <div class="canvas_group" id="canvas_group">
                         <canvas width="500" height="500" class="main_canvas" id="top_canvas"></canvas>
-                        <canvas width="500" height="500" class="main_canvas" id="canvas_0"></canvas>
+                        <canvas width="500" height="500" class="main_canvas" id="back_canvas"></canvas>
                     </div>
                 </div>
             </div>
@@ -134,7 +141,6 @@
                         <input type="button" value="MRG" onclick="mergeButton()">
                     </div>
                     <div id="layerList">
-                        <input type="button" id="layerButton_0" value="レイヤー0" onclick="setSelectLayer(0)">
                     </div>
                 </div>
             </div>
@@ -143,6 +149,7 @@
             <p id="selectModeText"></p>
             <p id="rgbText"></p>
             <p id="selectLayerText"></p>
+            <p id="undoRedoText"></p>
         </div>
     </div>
     <div class="information">
@@ -160,7 +167,10 @@
             <h3>◯キャンバス操作</h3>
             <p>キャンバスの大きさを(w, h)で設定。<br>
                 [CLEAR]ボタンですべてのレイヤーを初期化<br>
-                [UNDO]ボタンで前の状態に戻す。最大3回
+                [UNDO]ボタンで前の状態に戻す。最大10回<br>
+                [REDO]ボタンでUNDOをやり直す。最大10回<br>
+                [EXPORT]ボタンで画像を保存。レイヤーはすべて結合したものとしてjpg形式で保存。
+                [IMPORT]ボタンで画像を読み込み。選択中のレイヤーに描画する。対応ファイルはpng,jpeg,jpg形式。
             </p>
             <h3>◯描画設定</h3>
             <p>線の太さをスライダーもしくはボタンで変更</p>
@@ -176,9 +186,9 @@
                 ※アルゴリズムに改良の余地あり(現状では高負荷なアルゴリズム)<br>
                 ※当初、再帰を利用したアルゴリズムを考案したが、Stack数が上限を超え処理できず断念。
             </p>
-            <h4>コピー＆ペースト(copy and paset)</h4>
+            <h4>コピー＆ペースト(copy and paste)</h4>
             <p>[COPY]ボタンを押した状態でマウスで囲んだ部分をコピー<br>
-                [PASET]ボタンを押してクリックした場所にペースト<br>
+                [PASTE]ボタンを押してクリックした場所にペースト<br>
             </p>
         </div>
         <div class="infoBox">
