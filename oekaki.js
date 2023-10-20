@@ -16,6 +16,8 @@ let brushCanvas;
 let brushCtx;
 let sprayCanvas;
 let sprayCtx;
+let lineCanvas;
+let lineCtx;
 let fillCanvas;
 let fillCtx;
 let copyCanvas;
@@ -74,6 +76,8 @@ function onload() {
     brushCtx = brushCanvas.getContext('2d');
     sprayCanvas = document.getElementById('spray_canvas');
     sprayCtx = sprayCanvas.getContext('2d');
+    lineCanvas = document.getElementById('line_canvas');
+    lineCtx = lineCanvas.getContext('2d');
     fillCanvas = document.getElementById('fill_canvas');
     fillCtx = fillCanvas.getContext('2d');
     eraserCanvas = document.getElementById('eraser_canvas');
@@ -119,6 +123,8 @@ function setSelectMode(mode = "PEN") {
     document.getElementById('brush').style.color = hideC;
     document.getElementById('spray').style.backgroundColor = hideB;
     document.getElementById('spray').style.color = hideC;
+    document.getElementById('line').style.backgroundColor = hideB;
+    document.getElementById('line').style.color = hideC;
     document.getElementById('eraser').style.backgroundColor = hideB;
     document.getElementById('eraser').style.color = hideC;
     document.getElementById('fill').style.backgroundColor = hideB;
@@ -141,6 +147,10 @@ function setSelectMode(mode = "PEN") {
     if (selectMode === "SPRAY") {
         document.getElementById('spray').style.backgroundColor = selectB;
         document.getElementById('spray').style.color = selectC;
+    }
+    if (selectMode === "LINE") {
+        document.getElementById('line').style.backgroundColor = selectB;
+        document.getElementById('line').style.color = selectC;
     }
     if (selectMode === "ERASER") {
         document.getElementById('eraser').style.backgroundColor = selectB;
@@ -212,12 +222,13 @@ function onMouseMove(e) {
 
 function onMouseUp(e) {
     if (isDraw) {
-        if (selectMode === "PEN") drawPenLine(gCtx[selectLayer], e.offsetX, e.offsetY, toRGB(nowColor), nowDrawSize);
+        if (selectMode === "PEN") drawPenLine(gCtx[selectLayer], mousePoint[0], mousePoint[1], e.offsetX, e.offsetY, toRGB(nowColor), nowDrawSize);
         if (selectMode === "ERASER") eraserLine(gCtx[selectLayer], e.offsetX, e.offsetY, nowDrawSize);
         isDraw = false;
         if (selectMode === "PEN") drawPenUp(gCtx[selectLayer])
         if (selectMode === "ERASER") eraserUp(gCtx[selectLayer]);
         if (selectMode === "COPY") setCopyData();
+        if (selectMode === "LINE") drawLine(gCtx[selectLayer], mouseDownPoint[0], mouseDownPoint[1], e.offsetX, e.offsetY, toRGB(nowColor), nowDrawSize);
     }
     mouseLastPoint = [e.offsetX, e.offsetY];
     updateTopCanvas();
@@ -251,6 +262,9 @@ function updateTopCanvas() {
             let y = mousePoint[1] - (copyData.height / 2);
             topCtx.putImageData(copyData, x, y);
             drawRectangle(topCtx, x, y, copyData.width, copyData.height, "blue", 1);
+        }
+        if (selectMode == "LINE" && mouseDownPoint != null && mouseLastPoint != null && isDraw){
+            drawLine(topCtx, mouseDownPoint[0], mouseDownPoint[1], mouseLastPoint[0], mouseLastPoint[1], "red", 1);
         }
     }
 }
@@ -384,6 +398,7 @@ function setDrawSizeSlider() {
     refreshPenCanvas();
     refreshBrushCanvas();
     refreshSprayCanvas();
+    refreshLineCanvas();
     refreshEraserCanvas();
 }
 
@@ -419,6 +434,7 @@ function updataColor() {
     refreshPenCanvas();
     refreshBrushCanvas();
     refreshSprayCanvas();
+    refreshLineCanvas();
     refreshFillCanvas();
 }
 
@@ -675,11 +691,16 @@ function refreshBrushCanvas() {
 
 function refreshSprayCanvas() {
     drawMeshPattern(sprayCtx, sprayCanvas.width, sprayCanvas.height);
-    for (let i = 0; i < sprayCanvas.width - 60; i+=2) {
+    for (let i = 0; i < sprayCanvas.width - 60; i++) {
         let h = sprayCanvas.height;
         let w = sprayCanvas.width - 60;
         drawSpray(sprayCtx, i + 30, (h / 2 + Math.sin(i * 2 * Math.PI / (w)) * h / 6), toRGB(nowColor), nowDrawSize);
     }
+}
+
+function refreshLineCanvas() {
+    drawMeshPattern(lineCtx, lineCanvas.width, lineCanvas.height);
+    drawLine(lineCtx, 20, lineCanvas.height/2, lineCanvas.width - 20, lineCanvas.height/2, toRGB(nowColor), nowDrawSize);
 }
 
 function refreshEraserCanvas() {

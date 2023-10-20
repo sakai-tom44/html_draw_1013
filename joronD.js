@@ -40,7 +40,7 @@ function drawBrushLine(ctx, x1, y1, x2, y2, color = "black", width = 1) {
 }
 
 function drawSpray(ctx, x, y, color = "black", width = 1){
-    for (let i = 0; i < width*width/10; i++) {
+    for (let i = 0; i < width*width/30; i++) {
         let theta = Math.random()*2*Math.PI;
         let posX = x + (Math.random()*(width/2 + 1) * Math.cos(theta));
         let posY = y + (Math.random()*(width/2 + 1) * Math.sin(theta));
