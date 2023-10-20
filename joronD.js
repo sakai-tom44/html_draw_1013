@@ -9,11 +9,12 @@ function drawPenDown(ctx) {
     ctx.beginPath();
 }
 
-function drawPenLine(ctx, x, y, color = "black", width = 1, cap = "round") {
+function drawPenLine(ctx, x1, y1, x2, y2, color = "black", width = 1, cap = "round") {
     ctx.strokeStyle = color;
     ctx.lineWidth = width;
     ctx.lineCap = cap;
-    ctx.lineTo(x, y);
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
     ctx.stroke();
 }
 
@@ -36,6 +37,15 @@ function drawBrushLine(ctx, x1, y1, x2, y2, color = "black", width = 1) {
     ctx.closePath();
     ctx.stroke();
     fillCircle(ctx, x2, y2, s/2, color)
+}
+
+function drawSpray(ctx, x, y, color = "black", width = 1){
+    for (let i = 0; i < width*width/10; i++) {
+        let theta = Math.random()*2*Math.PI;
+        let posX = x + (Math.random()*(width/2 + 1) * Math.cos(theta));
+        let posY = y + (Math.random()*(width/2 + 1) * Math.sin(theta));
+        drawPoint(ctx, posX, posY, color);
+    }
 }
 
 function eraserDown(ctx) {
