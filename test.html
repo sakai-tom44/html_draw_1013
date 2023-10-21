@@ -73,13 +73,6 @@
                 </div>
                 <div class="tool">
                     <div>
-                        <p>直線</p>
-                        <input type="button" id="line" value="L" onclick="setSelectMode('LINE')">
-                    </div>
-                    <canvas width="175" height="40" id="line_canvas"></canvas>
-                </div>
-                <div class="tool">
-                    <div>
                         <p>消しゴム</p>
                         <input type="button" id="eraser" value="E" onclick="setSelectMode('ERASER')">
                     </div>
@@ -91,6 +84,23 @@
                         <input type="button" id="fill" value="F" onclick="setSelectMode('FILL')">
                     </div>
                     <canvas width="175" height="40" id="fill_canvas"></canvas>
+                </div>
+                <div class="sharp-tool">
+                    <div style="display: flex; margin-bottom: 10px;">
+                        <div>
+                            <p>直線</p>
+                            <input type="button" id="line" value="L" onclick="setSelectMode('LINE')">
+                        </div>
+                        <div>
+                            <p>四角</p>
+                            <input type="button" id="rect" value="R" onclick="setSelectMode('RECT')">
+                        </div>
+                        <div>
+                            <p>円</p>
+                            <input type="button" id="circle" value="C" onclick="setSelectMode('CIRCLE')">
+                        </div>
+                    </div>
+                    <canvas width="200" height="40" id="sharp_canvas"></canvas>
                 </div>
                 <div class="copyAndPaste">
                     <div style="display: flex; margin: 0 10%;">
@@ -195,8 +205,6 @@
             <p>マウスの移動速度で線の太さが変わる線を引く</p>
             <h4>スプレー(spray)</h4>
             <p>簡易的なスプレー機能。高負荷(点を何度も打つ処理を行っているため)</p>
-            <h4>直線(line)</h4>
-            <p>マウスを押してから離したところまでの直線を引く</p>
             <h4>消しゴム(eraser)</h4>
             <p>複数レイヤー(後述)を実装したので、最下層のレイヤーのみ白で塗り潰し、それ以外のレイヤーの場合透明化</p>
             <h4>塗り潰し(fill)</h4>
@@ -204,6 +212,12 @@
                 ※アルゴリズムに改良の余地あり(現状では高負荷なアルゴリズム)<br>
                 ※当初、再帰を利用したアルゴリズムを考案したが、Stack数が上限を超え処理できず断念。
             </p>
+            <h4>直線(line)</h4>
+            <p>マウスを押してから離したところまでの直線を引く</p>
+            <h4>四角(rect)</h4>
+            <p>マウスを押してから離したところまでの四角を描く</p>
+            <h4>円(circle)</h4>
+            <p>マウスを押してから離したところまでの円を描く</p>
             <h4>コピー＆ペースト(copy and paste)</h4>
             <p>[COPY]ボタンを押した状態でマウスで囲んだ部分をコピー<br>
                 [PASTE]ボタンを押してクリックした場所にペースト<br>

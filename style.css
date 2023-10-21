@@ -171,6 +171,7 @@ input[type="range"]#fillThresholdSlider {
 
 .pallet {
     padding: 15px;
+    padding-bottom: 0;
     margin-bottom: 5px;
 }
 
@@ -309,6 +310,29 @@ input[type="range"]#fillThresholdSlider {
     margin-left: 10px;
 }
 
+.sharp-tool {
+    background-color: rgb(110, 110, 110);
+    padding: 5px 20px;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.sharp-tool p {
+    color: white;
+    font-size: 8px;
+    margin: 0;
+    padding: 0;
+}
+
+.sharp-tool input[type="button"] {
+    background-color: lightgray;
+    font-size: 16px;
+    width: 28px;
+    height: 28px;
+    margin: 0 3px;
+    padding: 5px;
+}
+
 .copyAndPaste {
     background-color: rgb(110, 110, 110);
     padding: 5px;
@@ -332,8 +356,8 @@ input[type="range"].rgbSlider {
     cursor: pointer;
     width: 100%;
 
-    height: 6px;
-    border-radius: 6px;
+    height: 8px;
+    border-radius: 8px;
 
     margin: 0;
     padding: 0;

@@ -16,8 +16,8 @@ let brushCanvas;
 let brushCtx;
 let sprayCanvas;
 let sprayCtx;
-let lineCanvas;
-let lineCtx;
+let sharpCanvas;
+let sharpCtx;
 let fillCanvas;
 let fillCtx;
 let copyCanvas;
@@ -76,8 +76,8 @@ function onload() {
     brushCtx = brushCanvas.getContext('2d');
     sprayCanvas = document.getElementById('spray_canvas');
     sprayCtx = sprayCanvas.getContext('2d');
-    lineCanvas = document.getElementById('line_canvas');
-    lineCtx = lineCanvas.getContext('2d');
+    sharpCanvas = document.getElementById('sharp_canvas');
+    sharpCtx = sharpCanvas.getContext('2d');
     fillCanvas = document.getElementById('fill_canvas');
     fillCtx = fillCanvas.getContext('2d');
     eraserCanvas = document.getElementById('eraser_canvas');
@@ -125,6 +125,10 @@ function setSelectMode(mode = "PEN") {
     document.getElementById('spray').style.color = hideC;
     document.getElementById('line').style.backgroundColor = hideB;
     document.getElementById('line').style.color = hideC;
+    document.getElementById('rect').style.backgroundColor = hideB;
+    document.getElementById('rect').style.color = hideC;
+    document.getElementById('circle').style.backgroundColor = hideB;
+    document.getElementById('circle').style.color = hideC;
     document.getElementById('eraser').style.backgroundColor = hideB;
     document.getElementById('eraser').style.color = hideC;
     document.getElementById('fill').style.backgroundColor = hideB;
@@ -151,6 +155,14 @@ function setSelectMode(mode = "PEN") {
     if (selectMode === "LINE") {
         document.getElementById('line').style.backgroundColor = selectB;
         document.getElementById('line').style.color = selectC;
+    }
+    if (selectMode === "RECT") {
+        document.getElementById('rect').style.backgroundColor = selectB;
+        document.getElementById('rect').style.color = selectC;
+    }
+    if (selectMode === "CIRCLE") {
+        document.getElementById('circle').style.backgroundColor = selectB;
+        document.getElementById('circle').style.color = selectC;
     }
     if (selectMode === "ERASER") {
         document.getElementById('eraser').style.backgroundColor = selectB;
@@ -229,6 +241,8 @@ function onMouseUp(e) {
         if (selectMode === "ERASER") eraserUp(gCtx[selectLayer]);
         if (selectMode === "COPY") setCopyData();
         if (selectMode === "LINE") drawLine(gCtx[selectLayer], mouseDownPoint[0], mouseDownPoint[1], e.offsetX, e.offsetY, toRGB(nowColor), nowDrawSize);
+        if (selectMode === "RECT") drawRectangle(gCtx[selectLayer], mouseDownPoint[0], mouseDownPoint[1], e.offsetX - mouseDownPoint[0], e.offsetY - mouseDownPoint[1], toRGB(nowColor), nowDrawSize);
+        if (selectMode === "CIRCLE") drawCircle(gCtx[selectLayer], mouseDownPoint[0], mouseDownPoint[1], Math.sqrt((e.offsetX - mouseDownPoint[0])**2 + (e.offsetY - mouseDownPoint[1])**2), toRGB(nowColor), nowDrawSize);
     }
     mouseLastPoint = [e.offsetX, e.offsetY];
     updateTopCanvas();
@@ -265,6 +279,12 @@ function updateTopCanvas() {
         }
         if (selectMode == "LINE" && mouseDownPoint != null && mouseLastPoint != null && isDraw){
             drawLine(topCtx, mouseDownPoint[0], mouseDownPoint[1], mouseLastPoint[0], mouseLastPoint[1], "red", 1);
+        }
+        if (selectMode == "RECT" && mouseDownPoint != null && mouseLastPoint != null && isDraw){
+            drawRectangle(topCtx, mouseDownPoint[0], mouseDownPoint[1], mouseLastPoint[0] - mouseDownPoint[0], mouseLastPoint[1] - mouseDownPoint[1], "red", 1);
+        }
+        if (selectMode == "CIRCLE" && mouseDownPoint != null && mouseLastPoint != null && isDraw){
+            drawCircle(topCtx, mouseDownPoint[0], mouseDownPoint[1], Math.sqrt((mouseLastPoint[0] - mouseDownPoint[0])**2 + (mouseLastPoint[1] - mouseDownPoint[1])**2), "red", 1);
         }
     }
 }
@@ -321,7 +341,7 @@ function colorMatch(c1, c2) {
     for (let i = 0; i < 3; i++) {
         if (c1[i] <= c2[i] - fillThreshold || c1[i] >= c2[i] + fillThreshold) return false;
     }
-    if(c1[3] <= c2[3] - 100 || c1[3] >= c2[3] + 100)return false;
+    if(c1[3] <= c2[3] - 50 || c1[3] >= c2[3] + 50 || c1.length < 4)return false;
     return true;
 }
 
@@ -398,7 +418,7 @@ function setDrawSizeSlider() {
     refreshPenCanvas();
     refreshBrushCanvas();
     refreshSprayCanvas();
-    refreshLineCanvas();
+    refreshSharpCanvas();
     refreshEraserCanvas();
 }
 
@@ -434,7 +454,7 @@ function updataColor() {
     refreshPenCanvas();
     refreshBrushCanvas();
     refreshSprayCanvas();
-    refreshLineCanvas();
+    refreshSharpCanvas();
     refreshFillCanvas();
 }
 
@@ -698,9 +718,9 @@ function refreshSprayCanvas() {
     }
 }
 
-function refreshLineCanvas() {
-    drawMeshPattern(lineCtx, lineCanvas.width, lineCanvas.height);
-    drawLine(lineCtx, 20, lineCanvas.height/2, lineCanvas.width - 20, lineCanvas.height/2, toRGB(nowColor), nowDrawSize);
+function refreshSharpCanvas() {
+    drawMeshPattern(sharpCtx, sharpCanvas.width, sharpCanvas.height);
+    drawLine(sharpCtx, 20, sharpCanvas.height/2, sharpCanvas.width - 20, sharpCanvas.height/2, toRGB(nowColor), nowDrawSize);
 }
 
 function refreshEraserCanvas() {
