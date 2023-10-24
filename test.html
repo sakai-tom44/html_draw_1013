@@ -59,6 +59,13 @@
                 </div>
                 <div class="tool">
                     <div>
+                        <p>水性</p>
+                        <input type="button" id="water" value="W" onclick="setSelectMode('WATER')">
+                    </div>
+                    <canvas width="175" height="40" id="water_canvas"></canvas>
+                </div>
+                <div class="tool">
+                    <div>
                         <p>筆</p>
                         <input type="button" id="brush" value="B" onclick="setSelectMode('BRUSH')">
                     </div>
@@ -98,6 +105,10 @@
                         <div>
                             <p>円</p>
                             <input type="button" id="circle" value="C" onclick="setSelectMode('CIRCLE')">
+                        </div>
+                        <div>
+                            <p>三角</p>
+                            <input type="button" id="tryangle" value="T" onclick="setSelectMode('TRYANGLE')">
                         </div>
                     </div>
                     <canvas width="200" height="40" id="sharp_canvas"></canvas>

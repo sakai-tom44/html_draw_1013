@@ -10,6 +10,8 @@ let hslCanvas;
 let hslCtx;
 let penCanvas;
 let penCtx;
+let waterCanvas;
+let waterCtx;
 let eraserCanvas;
 let eraserCtx;
 let brushCanvas;
@@ -39,6 +41,7 @@ let fillThreshold = 5;
 
 let mouseDownPoint = [];
 let mouseLastPoint = [];
+let clickPoint = [[]];
 
 const UNDO_STACK = 10;
 let undoCanvas = { data: [], number: [] };
@@ -72,6 +75,8 @@ function onload() {
     hslCtx = hslCanvas.getContext('2d');
     penCanvas = document.getElementById('pen_canvas');
     penCtx = penCanvas.getContext('2d');
+    waterCanvas = document.getElementById('water_canvas');
+    waterCtx = waterCanvas.getContext('2d');
     brushCanvas = document.getElementById('brush_canvas');
     brushCtx = brushCanvas.getContext('2d');
     sprayCanvas = document.getElementById('spray_canvas');
@@ -115,10 +120,13 @@ function setSelectMode(mode = "PEN") {
 
     mouseDownPoint = null;
     mouseLastPoint = null;
+    clickPoint = [];
     selectMode = mode;
     footerUpdate();
     document.getElementById('pen').style.backgroundColor = hideB;
     document.getElementById('pen').style.color = hideC;
+    document.getElementById('water').style.backgroundColor = hideB;
+    document.getElementById('water').style.color = hideC;
     document.getElementById('brush').style.backgroundColor = hideB;
     document.getElementById('brush').style.color = hideC;
     document.getElementById('spray').style.backgroundColor = hideB;
@@ -129,6 +137,8 @@ function setSelectMode(mode = "PEN") {
     document.getElementById('rect').style.color = hideC;
     document.getElementById('circle').style.backgroundColor = hideB;
     document.getElementById('circle').style.color = hideC;
+    document.getElementById('tryangle').style.backgroundColor = hideB;
+    document.getElementById('tryangle').style.color = hideC;
     document.getElementById('eraser').style.backgroundColor = hideB;
     document.getElementById('eraser').style.color = hideC;
     document.getElementById('fill').style.backgroundColor = hideB;
@@ -143,44 +153,40 @@ function setSelectMode(mode = "PEN") {
     if (selectMode === "PEN") {
         document.getElementById('pen').style.backgroundColor = selectB;
         document.getElementById('pen').style.color = selectC;
-    }
-    if (selectMode === "BRUSH") {
+    } else if (selectMode === "WATER") {
+        document.getElementById('water').style.backgroundColor = selectB;
+        document.getElementById('water').style.color = selectC;
+    } else if (selectMode === "BRUSH") {
         document.getElementById('brush').style.backgroundColor = selectB;
         document.getElementById('brush').style.color = selectC;
-    }
-    if (selectMode === "SPRAY") {
+    } else if (selectMode === "SPRAY") {
         document.getElementById('spray').style.backgroundColor = selectB;
         document.getElementById('spray').style.color = selectC;
-    }
-    if (selectMode === "LINE") {
+    } else if (selectMode === "LINE") {
         document.getElementById('line').style.backgroundColor = selectB;
         document.getElementById('line').style.color = selectC;
-    }
-    if (selectMode === "RECT") {
+    } else if (selectMode === "RECT") {
         document.getElementById('rect').style.backgroundColor = selectB;
         document.getElementById('rect').style.color = selectC;
-    }
-    if (selectMode === "CIRCLE") {
+    } else if (selectMode === "CIRCLE") {
         document.getElementById('circle').style.backgroundColor = selectB;
         document.getElementById('circle').style.color = selectC;
-    }
-    if (selectMode === "ERASER") {
+    } else if (selectMode === "TRYANGLE") {
+        document.getElementById('tryangle').style.backgroundColor = selectB;
+        document.getElementById('tryangle').style.color = selectC;
+    } else if (selectMode === "ERASER") {
         document.getElementById('eraser').style.backgroundColor = selectB;
         document.getElementById('eraser').style.color = selectC;
-    }
-    if (selectMode === "FILL") {
+    } else if (selectMode === "FILL") {
         document.getElementById('fill').style.backgroundColor = selectB;
         document.getElementById('fill').style.color = selectC;
-    }
-    if (selectMode === "EYEDROPPER") {
+    } else if (selectMode === "EYEDROPPER") {
         document.getElementById('eyedropper').style.backgroundColor = selectB;
         document.getElementById('eyedropper').style.color = selectC;
-    }
-    if (selectMode === "COPY") {
+    } else if (selectMode === "COPY") {
         document.getElementById('copy').style.backgroundColor = selectB;
         document.getElementById('copy').style.color = selectC;
-    }
-    if (selectMode === "PASET") {
+    } else if (selectMode === "PASET") {
         document.getElementById('paste').style.backgroundColor = selectB;
         document.getElementById('paste').style.color = selectC;
     }
@@ -206,12 +212,19 @@ function onMouseDown(e) {
     saveCanvas();
     if (!isDraw) {
         isDraw = true;
-        if (selectMode === "PEN") drawPenDown(gCtx[selectLayer]);
+        if (selectMode === "PEN" || selectMode === "WATER") drawPenDown(gCtx[selectLayer]);
         if (selectMode === "ERASER") eraserDown(gCtx[selectLayer]);
     }
     if (selectMode === "EYEDROPPER") eyedropperTool(e.offsetX, e.offsetY);
     if (selectMode === "FILL") fillTool(e.offsetX, e.offsetY);
     if (selectMode === "PASTE") pasetCopyData();
+    if (selectMode === "TRYANGLE") {
+        clickPoint.push([e.offsetX, e.offsetY]);
+        if (clickPoint.length > 2) {
+            drawPolygon(gCtx[selectLayer], clickPoint, toRGB(nowColor), nowDrawSize);
+            clickPoint = [];
+        }
+    }
     mousePoint = [e.offsetX, e.offsetY];
     mouseDownPoint = [e.offsetX, e.offsetY];
     mouseLastPoint = null;
@@ -222,9 +235,10 @@ function onMouseDown(e) {
 function onMouseMove(e) {
     if (isDraw) {
         if (selectMode === "PEN") drawPenLine(gCtx[selectLayer], mousePoint[0], mousePoint[1], e.offsetX, e.offsetY, toRGB(nowColor), nowDrawSize);
+        if (selectMode === "WATER") drawPenLine(gCtx[selectLayer], mousePoint[0], mousePoint[1], e.offsetX, e.offsetY, toRGBA(nowColor), nowDrawSize);
         if (selectMode === "BRUSH") drawBrushLine(gCtx[selectLayer], mousePoint[0], mousePoint[1], e.offsetX, e.offsetY, toRGB(nowColor), nowDrawSize);
         if (selectMode === "SPRAY") drawSpray(gCtx[selectLayer], e.offsetX, e.offsetY, toRGB(nowColor), nowDrawSize);
-        if (selectMode === "ERASER") eraserLine(gCtx[selectLayer], e.offsetX, e.offsetY, nowDrawSize);
+        if (selectMode === "ERASER") eraserLine(gCtx[selectLayer], mousePoint[0], mousePoint[1], e.offsetX, e.offsetY, nowDrawSize);
         mouseLastPoint = [e.offsetX, e.offsetY];
     }
     mousePoint = [e.offsetX, e.offsetY];
@@ -235,14 +249,15 @@ function onMouseMove(e) {
 function onMouseUp(e) {
     if (isDraw) {
         if (selectMode === "PEN") drawPenLine(gCtx[selectLayer], mousePoint[0], mousePoint[1], e.offsetX, e.offsetY, toRGB(nowColor), nowDrawSize);
-        if (selectMode === "ERASER") eraserLine(gCtx[selectLayer], e.offsetX, e.offsetY, nowDrawSize);
+        if (selectMode === "WATER") drawPenLine(gCtx[selectLayer], mousePoint[0], mousePoint[1], e.offsetX, e.offsetY, toRGBA(nowColor), nowDrawSize);
+        if (selectMode === "ERASER") eraserLine(gCtx[selectLayer], mousePoint[0], mousePoint[1], e.offsetX, e.offsetY, nowDrawSize);
         isDraw = false;
         if (selectMode === "PEN") drawPenUp(gCtx[selectLayer])
         if (selectMode === "ERASER") eraserUp(gCtx[selectLayer]);
         if (selectMode === "COPY") setCopyData();
         if (selectMode === "LINE") drawLine(gCtx[selectLayer], mouseDownPoint[0], mouseDownPoint[1], e.offsetX, e.offsetY, toRGB(nowColor), nowDrawSize);
         if (selectMode === "RECT") drawRectangle(gCtx[selectLayer], mouseDownPoint[0], mouseDownPoint[1], e.offsetX - mouseDownPoint[0], e.offsetY - mouseDownPoint[1], toRGB(nowColor), nowDrawSize);
-        if (selectMode === "CIRCLE") drawCircle(gCtx[selectLayer], mouseDownPoint[0], mouseDownPoint[1], Math.sqrt((e.offsetX - mouseDownPoint[0])**2 + (e.offsetY - mouseDownPoint[1])**2), toRGB(nowColor), nowDrawSize);
+        if (selectMode === "CIRCLE") drawCircle(gCtx[selectLayer], mouseDownPoint[0], mouseDownPoint[1], Math.sqrt((e.offsetX - mouseDownPoint[0]) ** 2 + (e.offsetY - mouseDownPoint[1]) ** 2), toRGB(nowColor), nowDrawSize);
     }
     mouseLastPoint = [e.offsetX, e.offsetY];
     updateTopCanvas();
@@ -265,8 +280,12 @@ function pasetCopyData() {
 function updateTopCanvas() {
     topCtx.clearRect(0, 0, topCanvas.width, topCanvas.height);
     if (mousePoint != null) {
-        fillRectangle(topCtx, mousePoint[0] - 4, mousePoint[1], 9, 1, "red");
-        fillRectangle(topCtx, mousePoint[0], mousePoint[1] - 4, 1, 9, "red");
+        if (selectMode == "ERASER") {
+            drawCircle(topCtx, mousePoint[0], mousePoint[1], nowDrawSize / 2, "red", 1);
+        } else {
+            fillRectangle(topCtx, mousePoint[0] - 4, mousePoint[1], 9, 1, "red");
+            fillRectangle(topCtx, mousePoint[0], mousePoint[1] - 4, 1, 9, "red");
+        }
 
         if (selectMode == "COPY" && mouseDownPoint != null && mouseLastPoint != null) {
             drawRectangle(topCtx, mouseDownPoint[0], mouseDownPoint[1], mouseLastPoint[0] - mouseDownPoint[0], mouseLastPoint[1] - mouseDownPoint[1], "red", 1);
@@ -277,14 +296,22 @@ function updateTopCanvas() {
             topCtx.putImageData(copyData, x, y);
             drawRectangle(topCtx, x, y, copyData.width, copyData.height, "blue", 1);
         }
-        if (selectMode == "LINE" && mouseDownPoint != null && mouseLastPoint != null && isDraw){
+        if (selectMode == "LINE" && mouseDownPoint != null && mouseLastPoint != null && isDraw) {
             drawLine(topCtx, mouseDownPoint[0], mouseDownPoint[1], mouseLastPoint[0], mouseLastPoint[1], "red", 1);
         }
-        if (selectMode == "RECT" && mouseDownPoint != null && mouseLastPoint != null && isDraw){
+        if (selectMode == "RECT" && mouseDownPoint != null && mouseLastPoint != null && isDraw) {
             drawRectangle(topCtx, mouseDownPoint[0], mouseDownPoint[1], mouseLastPoint[0] - mouseDownPoint[0], mouseLastPoint[1] - mouseDownPoint[1], "red", 1);
         }
-        if (selectMode == "CIRCLE" && mouseDownPoint != null && mouseLastPoint != null && isDraw){
-            drawCircle(topCtx, mouseDownPoint[0], mouseDownPoint[1], Math.sqrt((mouseLastPoint[0] - mouseDownPoint[0])**2 + (mouseLastPoint[1] - mouseDownPoint[1])**2), "red", 1);
+        if (selectMode == "CIRCLE" && mouseDownPoint != null && mouseLastPoint != null && isDraw) {
+            drawCircle(topCtx, mouseDownPoint[0], mouseDownPoint[1], Math.sqrt((mouseLastPoint[0] - mouseDownPoint[0]) ** 2 + (mouseLastPoint[1] - mouseDownPoint[1]) ** 2), "red", 1);
+        }
+        if (selectMode == "TRYANGLE" && clickPoint.length > 0) {
+            let points = [[]];
+            for (let i = 0; i < clickPoint.length; i++) {
+                points.push([clickPoint[i][0], clickPoint[i][1]]);
+            }
+            points.push([mousePoint[0], mousePoint[1]])
+            drawPolygon(topCtx, points, "red", 1);
         }
     }
 }
@@ -298,6 +325,10 @@ function footerUpdate() {
 
 function toRGB(c) {
     return ("rgb(" + c[0] + ", " + c[1] + ", " + c[2] + ")");
+}
+
+function toRGBA(c) {
+    return ("rgba(" + c[0] + ", " + c[1] + ", " + c[2] + ", 0.02)");
 }
 
 function fillTool(x, y) {
@@ -341,7 +372,7 @@ function colorMatch(c1, c2) {
     for (let i = 0; i < 3; i++) {
         if (c1[i] <= c2[i] - fillThreshold || c1[i] >= c2[i] + fillThreshold) return false;
     }
-    if(c1[3] <= c2[3] - 50 || c1[3] >= c2[3] + 50 || c1.length < 4)return false;
+    if (c1[3] <= c2[3] - 50 || c1[3] >= c2[3] + 50 || c1.length < 4) return false;
     return true;
 }
 
@@ -416,6 +447,7 @@ function setDrawSizeSlider() {
     nowDrawSize = document.getElementById('drawSizeSlider').value;
     document.getElementById("drawSizeValue").innerHTML = nowDrawSize + "px";
     refreshPenCanvas();
+    refreshWaterCanvas();
     refreshBrushCanvas();
     refreshSprayCanvas();
     refreshSharpCanvas();
@@ -452,6 +484,7 @@ function updataColor() {
     refreshHslCanvas();
 
     refreshPenCanvas();
+    refreshWaterCanvas();
     refreshBrushCanvas();
     refreshSprayCanvas();
     refreshSharpCanvas();
@@ -693,9 +726,20 @@ function refreshPenCanvas() {
     for (let i = 0; i < penCanvas.width - 60; i++) {
         let h = penCanvas.height;
         let w = penCanvas.width - 60;
-        drawPenLine(penCtx, i + 30, (h / 2 + Math.sin(i * 2 * Math.PI / (w)) * h / 6), (i+1) + 30, (h / 2 + Math.sin((i+1) * 2 * Math.PI / (w)) * h / 6), toRGB(nowColor), nowDrawSize);
+        drawPenLine(penCtx, i + 30, (h / 2 + Math.sin(i * 2 * Math.PI / (w)) * h / 6), (i + 1) + 30, (h / 2 + Math.sin((i + 1) * 2 * Math.PI / (w)) * h / 6), toRGB(nowColor), nowDrawSize);
     }
     drawPenUp(penCtx);
+}
+
+function refreshWaterCanvas() {
+    drawMeshPattern(waterCtx, waterCanvas.width, waterCanvas.height);
+    drawPenDown(waterCtx);
+    for (let i = 0; i < waterCanvas.width - 60; i++) {
+        let h = waterCanvas.height;
+        let w = waterCanvas.width - 60;
+        drawPenLine(waterCtx, i + 30, (h / 2 + Math.sin(i * 2 * Math.PI / (w)) * h / 6), (i + 1) + 30, (h / 2 + Math.sin((i + 1) * 2 * Math.PI / (w)) * h / 6), toRGBA(nowColor), nowDrawSize);
+    }
+    drawPenUp(waterCtx);
 }
 
 function refreshBrushCanvas() {
@@ -711,16 +755,29 @@ function refreshBrushCanvas() {
 
 function refreshSprayCanvas() {
     drawMeshPattern(sprayCtx, sprayCanvas.width, sprayCanvas.height);
+    let data = sprayCtx.getImageData(0, 0, sprayCanvas.width, sprayCanvas.height);
     for (let i = 0; i < sprayCanvas.width - 60; i++) {
         let h = sprayCanvas.height;
         let w = sprayCanvas.width - 60;
-        drawSpray(sprayCtx, i + 30, (h / 2 + Math.sin(i * 2 * Math.PI / (w)) * h / 6), toRGB(nowColor), nowDrawSize);
+        let x = i + 30;
+        let y = (h / 2 + Math.sin(i * 2 * Math.PI / (w)) * h / 6);
+        for (let j = 0; j < nowDrawSize * nowDrawSize / 30; j++) {
+            let theta = Math.random() * 2 * Math.PI;
+            let posX = Math.floor(x + (Math.random() * (nowDrawSize / 2 + 1) * Math.cos(theta)));
+            let posY = Math.floor(y + (Math.random() * (nowDrawSize / 2 + 1) * Math.sin(theta)));
+            let pos = (posY * sprayCanvas.width + posX) * 4;
+            data.data[pos + 0] = nowColor[0];
+            data.data[pos + 1] = nowColor[1];
+            data.data[pos + 2] = nowColor[2];
+            data.data[pos + 3] = 255;
+        }
     }
+    sprayCtx.putImageData(data, 0, 0);
 }
 
 function refreshSharpCanvas() {
     drawMeshPattern(sharpCtx, sharpCanvas.width, sharpCanvas.height);
-    drawLine(sharpCtx, 20, sharpCanvas.height/2, sharpCanvas.width - 20, sharpCanvas.height/2, toRGB(nowColor), nowDrawSize);
+    drawLine(sharpCtx, 20, sharpCanvas.height / 2, sharpCanvas.width - 20, sharpCanvas.height / 2, toRGB(nowColor), nowDrawSize);
 }
 
 function refreshEraserCanvas() {
@@ -729,7 +786,7 @@ function refreshEraserCanvas() {
     for (let i = 0; i < eraserCanvas.width - 60; i++) {
         let h = eraserCanvas.height;
         let w = eraserCanvas.width - 60;
-        drawPenLine(eraserCtx, i + 30, (h / 2 + Math.sin(i * 2 * Math.PI / (w)) * h / 6), (i+1) + 30, (h / 2 + Math.sin((i+1) * 2 * Math.PI / (w)) * h / 6), 'white', nowDrawSize);
+        drawPenLine(eraserCtx, i + 30, (h / 2 + Math.sin(i * 2 * Math.PI / (w)) * h / 6), (i + 1) + 30, (h / 2 + Math.sin((i + 1) * 2 * Math.PI / (w)) * h / 6), 'white', nowDrawSize);
     }
     drawPenUp(eraserCtx);
 }
@@ -815,6 +872,6 @@ function importImage() {
             gCtx[selectLayer].drawImage(image, 0, 0, gCanvas[selectLayer].width, gCanvas[selectLayer].height);
         }
     }, false);
-    if(importCount <= 1)importImage();
+    if (importCount <= 1) importImage();
     importCount = 0;
 }

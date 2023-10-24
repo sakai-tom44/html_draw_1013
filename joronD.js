@@ -53,10 +53,11 @@ function eraserDown(ctx) {
     ctx.globalCompositeOperation = 'destination-out';
 }
 
-function eraserLine(ctx, x, y, width = 1) {
+function eraserLine(ctx, x1, y1, x2, y2, width = 1) {
     ctx.lineWidth = width;
     ctx.lineCap = 'round';
-    ctx.lineTo(x, y);
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
     ctx.stroke();
 }
 
