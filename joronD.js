@@ -130,3 +130,12 @@ function drawMeshPattern(ctx, w, h) {
         }
     }
 }
+
+function a(){
+    fillRectangle(ctx, 0, 0, w, h, "white");
+    for (let i = 0; i * 16 < w; i++) {
+        for (let j = 0; j * 8 < h; j++) {
+            fillRectangle(ctx, i * 16 + 8 * (1 - j % 2), j * 8, 8, 8, "lightgray");
+        }
+    }
+}

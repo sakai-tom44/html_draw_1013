@@ -280,7 +280,7 @@ function pasetCopyData() {
 function updateTopCanvas() {
     topCtx.clearRect(0, 0, topCanvas.width, topCanvas.height);
     if (mousePoint != null) {
-        if (selectMode == "ERASER") {
+        if (selectMode == "ERASER" || selectMode == "SPRAY") {
             drawCircle(topCtx, mousePoint[0], mousePoint[1], nowDrawSize / 2, "red", 1);
         } else {
             fillRectangle(topCtx, mousePoint[0] - 4, mousePoint[1], 9, 1, "red");
@@ -756,12 +756,13 @@ function refreshBrushCanvas() {
 function refreshSprayCanvas() {
     drawMeshPattern(sprayCtx, sprayCanvas.width, sprayCanvas.height);
     let data = sprayCtx.getImageData(0, 0, sprayCanvas.width, sprayCanvas.height);
-    for (let i = 0; i < sprayCanvas.width - 60; i++) {
-        let h = sprayCanvas.height;
-        let w = sprayCanvas.width - 60;
+    let h = sprayCanvas.height;
+    let w = sprayCanvas.width - 60;
+    let loop = nowDrawSize * nowDrawSize / 50;
+    for (let i = 0; i < w; i++) {
         let x = i + 30;
         let y = (h / 2 + Math.sin(i * 2 * Math.PI / (w)) * h / 6);
-        for (let j = 0; j < nowDrawSize * nowDrawSize / 30; j++) {
+        for (let j = 0; j < loop; j++) {
             let theta = Math.random() * 2 * Math.PI;
             let posX = Math.floor(x + (Math.random() * (nowDrawSize / 2 + 1) * Math.cos(theta)));
             let posY = Math.floor(y + (Math.random() * (nowDrawSize / 2 + 1) * Math.sin(theta)));
@@ -769,7 +770,6 @@ function refreshSprayCanvas() {
             data.data[pos + 0] = nowColor[0];
             data.data[pos + 1] = nowColor[1];
             data.data[pos + 2] = nowColor[2];
-            data.data[pos + 3] = 255;
         }
     }
     sprayCtx.putImageData(data, 0, 0);
