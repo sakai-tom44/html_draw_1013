@@ -45,10 +45,18 @@ input[type="button"] {
 .drawSizeTemplate input[type="button"] {
     background-color: lightgray;
     font-size: 12px;
-    width: 18%;
+    width: 24%;
     height: 16px;
     padding: 0px;
     margin: 2px;
+}
+
+.preview {
+    text-align: center;
+    margin: 0;
+    margin-left: 8px;
+    margin-top: 8px;
+    padding: 0;
 }
 
 

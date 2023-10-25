@@ -8,6 +8,8 @@ let pCanvas;
 let pCtx;
 let hslCanvas;
 let hslCtx;
+let previewCanvas;
+let previewCtx;
 let penCanvas;
 let penCtx;
 let waterCanvas;
@@ -73,6 +75,8 @@ function onload() {
     pCtx = pCanvas.getContext('2d');
     hslCanvas = document.getElementById('hsl_canvas');
     hslCtx = hslCanvas.getContext('2d');
+    previewCanvas = document.getElementById('preview_canvas');
+    previewCtx = previewCanvas.getContext('2d');
     penCanvas = document.getElementById('pen_canvas');
     penCtx = penCanvas.getContext('2d');
     waterCanvas = document.getElementById('water_canvas');
@@ -109,6 +113,14 @@ function onload() {
     hslCanvas.addEventListener('click', clickHsl, false);
 
     importButton = document.getElementById('import');
+
+    refreshPenCanvas();
+    refreshWaterCanvas();
+    refreshBrushCanvas();
+    refreshSprayCanvas();
+    refreshSharpCanvas();
+    refreshEraserCanvas();
+    refreshFillCanvas();
 }
 
 function setSelectMode(mode = "PEN") {
@@ -446,12 +458,7 @@ function setDrawSize(w) {
 function setDrawSizeSlider() {
     nowDrawSize = document.getElementById('drawSizeSlider').value;
     document.getElementById("drawSizeValue").innerHTML = nowDrawSize + "px";
-    refreshPenCanvas();
-    refreshWaterCanvas();
-    refreshBrushCanvas();
-    refreshSprayCanvas();
-    refreshSharpCanvas();
-    refreshEraserCanvas();
+    refreshPreviewCanvas();
 }
 
 function setRGBSizeSlider() {
@@ -482,13 +489,7 @@ function updataColor() {
     footerUpdate();
     refreshPallet();
     refreshHslCanvas();
-
-    refreshPenCanvas();
-    refreshWaterCanvas();
-    refreshBrushCanvas();
-    refreshSprayCanvas();
-    refreshSharpCanvas();
-    refreshFillCanvas();
+    refreshPreviewCanvas();
 }
 
 function setHslColor() {
@@ -720,6 +721,13 @@ function refreshHslCanvas() {
     drawLine(hslCtx, 200 * nowHsl_H / 360 + 1, 0, 200 * nowHsl_H / 360 + 1, 20, "black");
 }
 
+function refreshPreviewCanvas() {
+    drawMeshPattern(previewCtx, previewCanvas.width, previewCanvas.height);
+    drawPenDown(previewCtx);
+    drawPenLine(previewCtx, previewCanvas.width/2, previewCanvas.height/2, previewCanvas.width/2, previewCanvas.height/2, toRGB(nowColor), nowDrawSize);
+    drawPenUp(previewCtx);
+}
+
 function refreshPenCanvas() {
     drawMeshPattern(penCtx, penCanvas.width, penCanvas.height);
     drawPenDown(penCtx);
@@ -754,15 +762,12 @@ function refreshBrushCanvas() {
 }
 
 function refreshSprayCanvas() {
-    sprayCtx.clearRect(0, 0, sprayCanvas.width, sprayCanvas.height);
-    drawPenDown(sprayCtx);
-    for (let i = 0; i < sprayCanvas.width - 60; i++) {
+    drawMeshPattern(sprayCtx, sprayCanvas.width, sprayCanvas.height);
+    for (let i = 0; i < sprayCanvas.width - 60; i+=2) {
         let h = sprayCanvas.height;
         let w = sprayCanvas.width - 60;
-        drawPenLine(sprayCtx, i + 30, (h / 2 + Math.sin(i * 2 * Math.PI / (w)) * h / 6), (i + 1) + 30, (h / 2 + Math.sin((i + 1) * 2 * Math.PI / (w)) * h / 6), toRGB(nowColor), nowDrawSize);
+        drawSpray(sprayCtx, i + 30, (h / 2 + Math.sin(i * 2 * Math.PI / (w)) * h / 6), toRGB(nowColor), nowDrawSize);
     }
-    drawPenUp(sprayCtx);
-    drawRectangle(sprayCtx, 1, 1, sprayCanvas.width-2, sprayCanvas.height-2, "gray", 2)
 }
 
 function refreshSharpCanvas() {
@@ -783,7 +788,7 @@ function refreshEraserCanvas() {
 }
 
 function refreshFillCanvas() {
-    fillRectangle(fillCtx, 0, 0, fillCanvas.width, fillCanvas.height, toRGB(nowColor));
+    drawRectangle(fillCtx, 1, 1, fillCanvas.width-2, fillCanvas.height-2, "gray", 2)
 }
 
 function refreshCopyCanvas() {

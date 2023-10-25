@@ -38,17 +38,23 @@
                     </div>
                 </div>
                 <div class="setting">
-                    <p>DrawSize</p>
                     <div style="display: flex;">
-                        <input type="range" id="drawSizeSlider" min="1" max="30" oninput="setDrawSizeSlider()">
-                        <p id="drawSizeValue"></p>
+                        <div>
+                            <p>DrawSize</p>
+                            <input type="range" id="drawSizeSlider" min="1" max="30" oninput="setDrawSizeSlider()">
+                            <div class="drawSizeTemplate" style="display: flex;">
+                                <input type="button" value="1" onclick="setDrawSize(1)">
+                                <input type="button" value="5" onclick="setDrawSize(5)">
+                                <input type="button" value="10" onclick="setDrawSize(10)">
+                                <input type="button" value="20" onclick="setDrawSize(20)">
+                            </div>
+                        </div>
+                        <div class="preview">
+                            <canvas width="40" height="40" id="preview_canvas"></canvas>
+                            <p id="drawSizeValue"></p>
+                        </div>
                     </div>
-                    <div class="drawSizeTemplate" style="display: flex;">
-                        <input type="button" value="1" onclick="setDrawSize(1)">
-                        <input type="button" value="5" onclick="setDrawSize(5)">
-                        <input type="button" value="10" onclick="setDrawSize(10)">
-                        <input type="button" value="20" onclick="setDrawSize(20)">
-                    </div>
+
                 </div>
                 <div class="tool">
                     <div>

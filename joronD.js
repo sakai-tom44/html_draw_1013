@@ -54,6 +54,7 @@ function eraserDown(ctx) {
 }
 
 function eraserLine(ctx, x1, y1, x2, y2, width = 1) {
+    ctx.strokeStyle = "white";
     ctx.lineWidth = width;
     ctx.lineCap = 'round';
     ctx.moveTo(x1, y1);
