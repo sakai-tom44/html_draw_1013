@@ -44,9 +44,9 @@
                             <input type="range" id="drawSizeSlider" min="1" max="30" oninput="setDrawSizeSlider()">
                             <div class="drawSizeTemplate" style="display: flex;">
                                 <input type="button" value="1" onclick="setDrawSize(1)">
-                                <input type="button" value="5" onclick="setDrawSize(5)">
                                 <input type="button" value="10" onclick="setDrawSize(10)">
                                 <input type="button" value="20" onclick="setDrawSize(20)">
+                                <input type="button" value="30" onclick="setDrawSize(30)">
                             </div>
                         </div>
                         <div class="preview">
@@ -61,42 +61,42 @@
                         <p>ペン</p>
                         <input type="button" id="pen" value="P" onclick="setSelectMode('PEN')">
                     </div>
-                    <canvas width="175" height="40" id="pen_canvas"></canvas>
+                    <canvas width="175" height="40" id="pen_canvas" onclick="setSelectMode('PEN')"></canvas>
                 </div>
                 <div class="tool">
                     <div>
                         <p>水性</p>
                         <input type="button" id="water" value="W" onclick="setSelectMode('WATER')">
                     </div>
-                    <canvas width="175" height="40" id="water_canvas"></canvas>
+                    <canvas width="175" height="40" id="water_canvas" onclick="setSelectMode('WATER')"></canvas>
                 </div>
                 <div class="tool">
                     <div>
                         <p>筆</p>
                         <input type="button" id="brush" value="B" onclick="setSelectMode('BRUSH')">
                     </div>
-                    <canvas width="175" height="40" id="brush_canvas"></canvas>
+                    <canvas width="175" height="40" id="brush_canvas" onclick="setSelectMode('BRUSH')"></canvas>
                 </div>
                 <div class="tool">
                     <div>
                         <p>スプレー</p>
                         <input type="button" id="spray" value="S" onclick="setSelectMode('SPRAY')">
                     </div>
-                    <canvas width="175" height="40" id="spray_canvas"></canvas>
+                    <canvas width="175" height="40" id="spray_canvas" onclick="setSelectMode('SPRAY')"></canvas>
                 </div>
                 <div class="tool">
                     <div>
                         <p>消しゴム</p>
                         <input type="button" id="eraser" value="E" onclick="setSelectMode('ERASER')">
                     </div>
-                    <canvas width="175" height="40" id="eraser_canvas"></canvas>
+                    <canvas width="175" height="40" id="eraser_canvas" onclick="setSelectMode('ERASER')"></canvas>
                 </div>
                 <div class="tool">
                     <div>
                         <p>塗り潰し</p>
                         <input type="button" id="fill" value="F" onclick="setSelectMode('FILL')">
                     </div>
-                    <canvas width="175" height="40" id="fill_canvas"></canvas>
+                    <canvas width="175" height="40" id="fill_canvas" onclick="setSelectMode('FILL')"></canvas>
                 </div>
                 <div class="sharp-tool">
                     <div style="display: flex; margin-bottom: 10px;">
