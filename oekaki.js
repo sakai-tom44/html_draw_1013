@@ -754,25 +754,15 @@ function refreshBrushCanvas() {
 }
 
 function refreshSprayCanvas() {
-    drawMeshPattern(sprayCtx, sprayCanvas.width, sprayCanvas.height);
-    let data = sprayCtx.getImageData(0, 0, sprayCanvas.width, sprayCanvas.height);
-    let h = sprayCanvas.height;
-    let w = sprayCanvas.width - 60;
-    let loop = nowDrawSize * nowDrawSize / 50;
-    for (let i = 0; i < w; i++) {
-        let x = i + 30;
-        let y = (h / 2 + Math.sin(i * 2 * Math.PI / (w)) * h / 6);
-        for (let j = 0; j < loop; j++) {
-            let theta = Math.random() * 2 * Math.PI;
-            let posX = Math.floor(x + (Math.random() * (nowDrawSize / 2 + 1) * Math.cos(theta)));
-            let posY = Math.floor(y + (Math.random() * (nowDrawSize / 2 + 1) * Math.sin(theta)));
-            let pos = (posY * sprayCanvas.width + posX) * 4;
-            data.data[pos + 0] = nowColor[0];
-            data.data[pos + 1] = nowColor[1];
-            data.data[pos + 2] = nowColor[2];
-        }
+    sprayCtx.clearRect(0, 0, sprayCanvas.width, sprayCanvas.height);
+    drawPenDown(sprayCtx);
+    for (let i = 0; i < sprayCanvas.width - 60; i++) {
+        let h = sprayCanvas.height;
+        let w = sprayCanvas.width - 60;
+        drawPenLine(sprayCtx, i + 30, (h / 2 + Math.sin(i * 2 * Math.PI / (w)) * h / 6), (i + 1) + 30, (h / 2 + Math.sin((i + 1) * 2 * Math.PI / (w)) * h / 6), toRGB(nowColor), nowDrawSize);
     }
-    sprayCtx.putImageData(data, 0, 0);
+    drawPenUp(sprayCtx);
+    drawRectangle(sprayCtx, 1, 1, sprayCanvas.width-2, sprayCanvas.height-2, "gray", 2)
 }
 
 function refreshSharpCanvas() {
@@ -781,7 +771,7 @@ function refreshSharpCanvas() {
 }
 
 function refreshEraserCanvas() {
-    drawMeshPattern(eraserCtx, eraserCanvas.width, eraserCanvas.height);
+    eraserCtx.clearRect(0, 0, eraserCanvas.width, eraserCanvas.height);
     drawPenDown(eraserCtx);
     for (let i = 0; i < eraserCanvas.width - 60; i++) {
         let h = eraserCanvas.height;
@@ -789,6 +779,7 @@ function refreshEraserCanvas() {
         drawPenLine(eraserCtx, i + 30, (h / 2 + Math.sin(i * 2 * Math.PI / (w)) * h / 6), (i + 1) + 30, (h / 2 + Math.sin((i + 1) * 2 * Math.PI / (w)) * h / 6), 'white', nowDrawSize);
     }
     drawPenUp(eraserCtx);
+    drawRectangle(eraserCtx, 1, 1, eraserCanvas.width-2, eraserCanvas.height-2, "gray", 2)
 }
 
 function refreshFillCanvas() {
