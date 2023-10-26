@@ -362,14 +362,16 @@ function fillTool(x, y) {
         data.data[(y * w + x) * 4 + 3] = a;
     }
 
+    let color = [nowColor[0],nowColor[1],nowColor[2],255];
     let targetColor = gCtx[selectLayer].getImageData(x, y, 1, 1).data;
+    if(colorMatch(targetColor, color))return;
     let buffer = [];
     buffer.push([x, y]);
     while (buffer.length > 0) {
         let pos = buffer.pop();
         if (pos[0] < 0 || pos[0] >= w || pos[1] < 0 || pos[1] >= h) continue;
         let posColor = getRGB(pos[0], pos[1]);
-        if (colorMatch(nowColor, posColor)) continue;
+        if (colorMatch(color, posColor)) continue;
         if (!colorMatch(targetColor, posColor)) continue;
         setRGB(pos[0], pos[1], nowColor);
         buffer.push([pos[0] - 1, pos[1]]);
@@ -384,7 +386,7 @@ function colorMatch(c1, c2) {
     for (let i = 0; i < 3; i++) {
         if (c1[i] <= c2[i] - fillThreshold || c1[i] >= c2[i] + fillThreshold) return false;
     }
-    if (c1[3] <= c2[3] - 50 || c1[3] >= c2[3] + 50 || c1.length < 4) return false;
+    if (c1[3] <= c2[3] - 50 || c1[3] >= c2[3] + 50) return false;
     return true;
 }
 
@@ -723,9 +725,7 @@ function refreshHslCanvas() {
 
 function refreshPreviewCanvas() {
     drawMeshPattern(previewCtx, previewCanvas.width, previewCanvas.height);
-    drawPenDown(previewCtx);
-    drawPenLine(previewCtx, previewCanvas.width/2, previewCanvas.height/2, previewCanvas.width/2, previewCanvas.height/2, toRGB(nowColor), nowDrawSize);
-    drawPenUp(previewCtx);
+    fillCircle(previewCtx, previewCanvas.width/2, previewCanvas.height/2, nowDrawSize/2, toRGB(nowColor));
 }
 
 function refreshPenCanvas() {
