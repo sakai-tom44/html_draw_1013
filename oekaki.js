@@ -362,9 +362,9 @@ function fillTool(x, y) {
         data.data[(y * w + x) * 4 + 3] = a;
     }
 
-    let color = [nowColor[0],nowColor[1],nowColor[2],255];
+    let color = [nowColor[0], nowColor[1], nowColor[2], 255];
     let targetColor = gCtx[selectLayer].getImageData(x, y, 1, 1).data;
-    if(colorMatch(targetColor, color))return;
+    if (colorMatch(targetColor, color)) return;
     let buffer = [];
     buffer.push([x, y]);
     while (buffer.length > 0) {
@@ -725,7 +725,7 @@ function refreshHslCanvas() {
 
 function refreshPreviewCanvas() {
     drawMeshPattern(previewCtx, previewCanvas.width, previewCanvas.height);
-    fillCircle(previewCtx, previewCanvas.width/2, previewCanvas.height/2, nowDrawSize/2, toRGB(nowColor));
+    fillCircle(previewCtx, previewCanvas.width / 2, previewCanvas.height / 2, nowDrawSize / 2, toRGB(nowColor));
 }
 
 function refreshPenCanvas() {
@@ -763,7 +763,7 @@ function refreshBrushCanvas() {
 
 function refreshSprayCanvas() {
     drawMeshPattern(sprayCtx, sprayCanvas.width, sprayCanvas.height);
-    for (let i = 0; i < sprayCanvas.width - 60; i+=2) {
+    for (let i = 0; i < sprayCanvas.width - 60; i += 2) {
         let h = sprayCanvas.height;
         let w = sprayCanvas.width - 60;
         drawSpray(sprayCtx, i + 30, (h / 2 + Math.sin(i * 2 * Math.PI / (w)) * h / 6), toRGB(nowColor), nowDrawSize);
@@ -784,11 +784,11 @@ function refreshEraserCanvas() {
         drawPenLine(eraserCtx, i + 30, (h / 2 + Math.sin(i * 2 * Math.PI / (w)) * h / 6), (i + 1) + 30, (h / 2 + Math.sin((i + 1) * 2 * Math.PI / (w)) * h / 6), 'white', nowDrawSize);
     }
     drawPenUp(eraserCtx);
-    drawRectangle(eraserCtx, 1, 1, eraserCanvas.width-2, eraserCanvas.height-2, "gray", 2)
+    drawRectangle(eraserCtx, 1, 1, eraserCanvas.width - 2, eraserCanvas.height - 2, "gray", 2)
 }
 
 function refreshFillCanvas() {
-    drawRectangle(fillCtx, 1, 1, fillCanvas.width-2, fillCanvas.height-2, "gray", 2)
+    drawRectangle(fillCtx, 1, 1, fillCanvas.width - 2, fillCanvas.height - 2, "gray", 2)
 }
 
 function refreshCopyCanvas() {
@@ -870,4 +870,110 @@ function importImage() {
     }, false);
     if (importCount <= 1) importImage();
     importCount = 0;
+}
+
+function flipHorizontal() {
+    saveCanvas();
+    let origData = gCtx[selectLayer].getImageData(0, 0, gCanvas[selectLayer].width, gCanvas[selectLayer].height);
+    let newData = gCtx[selectLayer].getImageData(0, 0, gCanvas[selectLayer].width, gCanvas[selectLayer].height);
+    for (let h = 0; h < gCanvas[selectLayer].height; h++) {
+        for (let w = 0; w < gCanvas[selectLayer].width; w++) {
+            let r = origData.data[(h * gCanvas[selectLayer].width + w) * 4];
+            let g = origData.data[(h * gCanvas[selectLayer].width + w) * 4 + 1];
+            let b = origData.data[(h * gCanvas[selectLayer].width + w) * 4 + 2];
+            let a = origData.data[(h * gCanvas[selectLayer].width + w) * 4 + 3];
+
+            newData.data[(h * gCanvas[selectLayer].width + gCanvas[selectLayer].width - w) * 4] = r;
+            newData.data[(h * gCanvas[selectLayer].width + gCanvas[selectLayer].width - w) * 4 + 1] = g;
+            newData.data[(h * gCanvas[selectLayer].width + gCanvas[selectLayer].width - w) * 4 + 2] = b;
+            newData.data[(h * gCanvas[selectLayer].width + gCanvas[selectLayer].width - w) * 4 + 3] = a;
+        }
+    }
+    gCtx[selectLayer].putImageData(newData, 0, 0);
+}
+
+function averageFilter() {
+    saveCanvas();
+    let origData = gCtx[selectLayer].getImageData(0, 0, gCanvas[selectLayer].width, gCanvas[selectLayer].height);
+    let newData = gCtx[selectLayer].getImageData(0, 0, gCanvas[selectLayer].width, gCanvas[selectLayer].height);
+    for (let h = 0; h < gCanvas[selectLayer].height; h++) {
+        for (let w = 0; w < gCanvas[selectLayer].width; w++) {
+            let r = 0;
+            let g = 0;
+            let b = 0;
+            let a = 0;
+            for (let y = -1; y <= 1; y++) {
+                for (let x = -1; x <= 1; x++) {
+                    r += origData.data[((h+y) * gCanvas[selectLayer].width + (w+x)) * 4];
+                    g += origData.data[((h+y) * gCanvas[selectLayer].width + (w+x)) * 4 + 1];
+                    b += origData.data[((h+y) * gCanvas[selectLayer].width + (w+x)) * 4 + 2];
+                    a += origData.data[((h+y) * gCanvas[selectLayer].width + (w+x)) * 4 + 3];
+                }
+            }
+            r /= 9;
+            g /= 9;
+            b /= 9;
+            a /= 9;
+            newData.data[(h * gCanvas[selectLayer].width + w) * 4] = r;
+            newData.data[(h * gCanvas[selectLayer].width + w) * 4 + 1] = g;
+            newData.data[(h * gCanvas[selectLayer].width + w) * 4 + 2] = b;
+            newData.data[(h * gCanvas[selectLayer].width + w) * 4 + 3] = a;
+        }
+    }
+    gCtx[selectLayer].putImageData(newData, 0, 0);
+}
+
+function sharpeningfilter(){
+    saveCanvas();
+    let origData = gCtx[selectLayer].getImageData(0, 0, gCanvas[selectLayer].width, gCanvas[selectLayer].height);
+    let newData = gCtx[selectLayer].getImageData(0, 0, gCanvas[selectLayer].width, gCanvas[selectLayer].height);
+    let filter = [0,-1,0,-1,5,-1,0,-1,0];
+    for (let h = 0; h < gCanvas[selectLayer].height; h++) {
+        for (let w = 0; w < gCanvas[selectLayer].width; w++) {
+            let r = 0;
+            let g = 0;
+            let b = 0;
+            let a = 0;
+            for (let y = -1; y <= 1; y++) {
+                for (let x = -1; x <= 1; x++) {
+                    let mul = filter[(y+1)*3+(x+1)];
+                    r += origData.data[((h+y) * gCanvas[selectLayer].width + (w+x)) * 4] * mul;
+                    g += origData.data[((h+y) * gCanvas[selectLayer].width + (w+x)) * 4 + 1] * mul;
+                    b += origData.data[((h+y) * gCanvas[selectLayer].width + (w+x)) * 4 + 2] * mul;
+                    a += origData.data[((h+y) * gCanvas[selectLayer].width + (w+x)) * 4 + 3] * mul;
+                }
+            }
+            newData.data[(h * gCanvas[selectLayer].width + w) * 4] = r;
+            newData.data[(h * gCanvas[selectLayer].width + w) * 4 + 1] = g;
+            newData.data[(h * gCanvas[selectLayer].width + w) * 4 + 2] = b;
+            newData.data[(h * gCanvas[selectLayer].width + w) * 4 + 3] = a;
+        }
+    }
+    gCtx[selectLayer].putImageData(newData, 0, 0);
+}
+
+function getMono(rgb){
+    return rgb[0] * 0.299 + rgb[1] * 0.587 + rgb[2] * 0.114;
+}
+
+function monofilter() {
+    saveCanvas();
+    let origData = gCtx[selectLayer].getImageData(0, 0, gCanvas[selectLayer].width, gCanvas[selectLayer].height);
+    let newData = gCtx[selectLayer].getImageData(0, 0, gCanvas[selectLayer].width, gCanvas[selectLayer].height);
+    for (let h = 0; h < gCanvas[selectLayer].height; h++) {
+        for (let w = 0; w < gCanvas[selectLayer].width; w++) {
+            let r = origData.data[(h * gCanvas[selectLayer].width + w) * 4];
+            let g = origData.data[(h * gCanvas[selectLayer].width + w) * 4 + 1];
+            let b = origData.data[(h * gCanvas[selectLayer].width + w) * 4 + 2];
+            let a = origData.data[(h * gCanvas[selectLayer].width + w) * 4 + 3];
+
+            let mono = getMono([r,g,b]);
+
+            newData.data[(h * gCanvas[selectLayer].width + w) * 4] = mono;
+            newData.data[(h * gCanvas[selectLayer].width + w) * 4 + 1] = mono;
+            newData.data[(h * gCanvas[selectLayer].width + w) * 4 + 2] = mono;
+            newData.data[(h * gCanvas[selectLayer].width + w) * 4 + 3] = a;
+        }
+    }
+    gCtx[selectLayer].putImageData(newData, 0, 0);
 }

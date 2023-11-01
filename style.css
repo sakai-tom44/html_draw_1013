@@ -209,6 +209,22 @@ input[type="range"]#fillThresholdSlider {
     height: 40px;
 }
 
+.filterMenue{
+    padding: 10px;
+    margin-bottom: 5px;
+}
+
+.filterMenue input[type="button"] {
+    background-color: gray;
+    color: lightgray;
+    font-size: 12px;
+    font-weight: bold;
+    width: calc(100% - 20px);
+    height: 30px;
+    margin: 0px;
+    padding: 2px;
+}
+
 .layerUI {
     display: flex;
 }
